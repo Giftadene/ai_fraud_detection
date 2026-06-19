@@ -4,10 +4,23 @@ import datetime
 import functools
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 import database
-import ml_engine
+
+# Import ml_engine with graceful fallback — sklearn/scipy version issues should not crash the app
+try:
+    import ml_engine
+    ML_ENGINE_AVAILABLE = True
+except Exception as e:
+    print(f"Warning: ml_engine import failed ({e}). Predictions will be unavailable.")
+    ml_engine = None
+    ML_ENGINE_AVAILABLE = False
 
 app = Flask(__name__, template_folder="templates")
-app.secret_key = os.urandom(24).hex()
+app.secret_key = os.environ.get("FRAUDGUARD_SECRET_KEY") or os.urandom(24).hex()
+
+# Health check — works even if DB/model init fails
+@app.route("/health")
+def health():
+    return jsonify({"status": "alive", "app": "FraudGuard AI", "version": "1.0.0"})
 
 # Auth decorators
 def login_required(f):
@@ -42,17 +55,29 @@ def require_role(*required_roles):
         return decorated
     return decorator
 
-# Initialize database and model on start
+# Initialize database and model on start (wrapped in try/except for gunicorn compatibility)
 with app.app_context():
-    print("Initializing Database...")
-    database.init_db()
-    print("Initializing ML Model...")
     try:
-        ml_engine.init_model()
-        print("ML Model loaded successfully.")
+        print("Initializing Database...")
+        database.init_db()
+        print("Database initialized successfully.")
     except Exception as e:
-        print(f"Error initializing model: {e}. Re-training model...")
-        ml_engine.init_model(retrain=True)
+        print(f"Warning: Database initialization error (will retry on first request): {e}")
+
+    if ML_ENGINE_AVAILABLE:
+        try:
+            print("Initializing ML Model...")
+            ml_engine.init_model()
+            print("ML Model loaded successfully.")
+        except Exception as e:
+            print(f"Warning: Model initialization error (will retry on first request): {e}")
+            try:
+                ml_engine.init_model(retrain=True)
+                print("ML Model retrained and loaded successfully.")
+            except Exception as e2:
+                print(f"Warning: Model retrain also failed (will retry on first request): {e2}")
+    else:
+        print("ML Engine not available — skipping model initialization.")
 
 @app.route("/")
 def index():
@@ -362,6 +387,9 @@ def simulate_transaction():
         previous_fraud = selected_user["previous_fraud_history"]
         
         # Call machine learning prediction
+        if not ML_ENGINE_AVAILABLE:
+            return jsonify({"success": False, "error": "ML Engine is not available"}), 503
+            
         pred_input = {
             "amount": amount,
             "user_avg_amount": user_avg_amount,
@@ -420,6 +448,8 @@ def simulate_transaction():
 @login_required
 def get_model_metrics():
     try:
+        if not ML_ENGINE_AVAILABLE:
+            return jsonify({"success": False, "error": "ML Engine is not available"}), 503
         model, scaler, metrics = ml_engine.load_model()
         return jsonify({"success": True, "metrics": metrics})
     except Exception as e:
@@ -440,6 +470,8 @@ def get_model_logs():
 @login_required
 def retrain_model():
     try:
+        if not ML_ENGINE_AVAILABLE:
+            return jsonify({"success": False, "error": "ML Engine is not available"}), 503
         print("Model retraining triggered...")
         # Train new model instance and calculate metrics
         model, scaler, metrics = ml_engine.init_model(retrain=True)

@@ -2,28 +2,26 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies required by scikit-learn, numpy, etc.
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency file first for better caching
+# Copy and install Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy entire application
 COPY . .
 
-# Set default credentials (override via HF Spaces Secrets)
+# Default credentials (override via HF Spaces Secrets)
 ENV FRAUDGUARD_ADMIN_PW=admin123
 ENV FRAUDGUARD_ANALYST_PW=analyst123
+ENV FRAUDGUARD_SECRET_KEY=fraudguard-ai-default-secret-key-change-in-production
 
-# Hugging Face Spaces uses port 7860
-ENV PORT=7860
-
-# Expose the port
+# Hugging Face Spaces automatically sets PORT=7860
 EXPOSE 7860
 
-# Run the Flask app on 0.0.0.0:$PORT
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app
+# Start directly — app.py handles init errors gracefully
+CMD gunicorn --bind 0.0.0.0:${PORT:-7860} --workers 2 --timeout 300 --access-logfile - --error-logfile - app:app
