@@ -55,8 +55,12 @@ with app.app_context():
         ml_engine.init_model(retrain=True)
 
 @app.route("/")
-@login_required
 def index():
+    return render_template("landing.html")
+
+@app.route("/app")
+@login_required
+def dashboard():
     return render_template("index.html", user=session.get("user"), roles=session.get("roles", []))
 
 # ==================== AUTHENTICATION ====================
@@ -64,7 +68,7 @@ def index():
 @app.route("/login")
 def login_page():
     if "user_id" in session:
-        return redirect(url_for("index"))
+        return redirect(url_for("dashboard"))
     return render_template("login.html")
 
 @app.route("/api/auth/login", methods=["POST"])

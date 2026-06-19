@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FraudGuard AI - Deborah Patrick's ML Fraud Detection System</title>
+    <link href="/static/favicon.png" rel="icon" type="image/png"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0b1c30 0%, #1a2d4a 50%, #0b1c30 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #0058be, #2170e4, #4edea3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 88, 190, 0.15);
+        }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        pre {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Hero Section -->
+    <header class="min-h-screen flex items-center justify-center px-4 py-16">
+        <div class="glass-card rounded-3xl shadow-2xl w-full max-w-5xl p-8 md:p-16 space-y-10 text-center">
+            <div class="flex justify-center mb-6">
+                <svg class="h-20 w-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" rx="20" fill="#0058be"/>
+                    <path d="M50 15L75 28V48C75 65 63 80 50 85C37 80 25 65 25 48V28L50 15Z" fill="white" opacity="0.9"/>
+                    <path d="M50 22L68 31V47C68 60 60 71 50 75C40 71 32 60 32 47V31L50 22Z" fill="#0058be"/>
+                    <path d="M44 50L48 54L56 46" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="space-y-4">
+                <p class="text-sm font-bold text-[#0058be] uppercase tracking-[0.2em]">Capstone Project</p>
+                <h1 class="text-3xl md:text-5xl font-black text-[#0b1c30] leading-tight">
+                    Deborah Patrick's<br/>
+                    <span class="gradient-text">Machine Learning-Based<br/>Fraud Detection System</span>
+                </h1>
+                <p class="text-lg text-[#45464d] max-w-2xl mx-auto leading-relaxed">
+                    Real-time fraud detection for online banking and mobile money transactions using XGBoost machine learning. 
+                    Enterprise-grade analytics, alert management, and risk scoring.
+                </p>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <a href="http://127.0.0.1:5000/login" target="_blank"
+                   class="bg-[#0058be] hover:bg-[#004395] text-white font-bold px-8 py-4 rounded-xl text-lg transition-all hover:scale-105 active:scale-95 shadow-lg flex items-center gap-3">
+                    <span class="material-symbols-outlined">login</span>
+                    Launch Application
+                </a>
+                <a href="#download"
+                   class="bg-white border-2 border-[#0058be] text-[#0058be] hover:bg-[#f0f7ff] font-bold px-8 py-4 rounded-xl text-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
+                    <span class="material-symbols-outlined">download</span>
+                    Download & Install
+                </a>
+            </div>
+
+            <!-- Feature Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 text-left">
+                <div class="feature-card bg-[#f8f9ff] rounded-2xl p-6 border border-[#e2e8f0]">
+                    <div class="w-12 h-12 bg-[#dce9ff] rounded-xl flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-[#0058be] text-2xl">bolt</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-[#0b1c30]">Real-Time Detection</h3>
+                    <p class="text-sm text-[#45464d] leading-relaxed">XGBoost-powered predictions with &lt;2 second response time. Processes 10,000+ transactions per minute.</p>
+                </div>
+                <div class="feature-card bg-[#f8f9ff] rounded-2xl p-6 border border-[#e2e8f0]">
+                    <div class="w-12 h-12 bg-[#dce9ff] rounded-xl flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-[#0058be] text-2xl">monitoring</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-[#0b1c30]">Analytics Dashboard</h3>
+                    <p class="text-sm text-[#45464d] leading-relaxed">Comprehensive KPIs, trend charts, risk distribution maps, and fraud analyst investigation desk.</p>
+                </div>
+                <div class="feature-card bg-[#f8f9ff] rounded-2xl p-6 border border-[#e2e8f0]">
+                    <div class="w-12 h-12 bg-[#dce9ff] rounded-xl flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-[#0058be] text-2xl">settings_suggest</span>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-[#0b1c30]">ML Model Lab</h3>
+                    <p class="text-sm text-[#45464d] leading-relaxed">Retrain models, evaluate metrics (accuracy, precision, recall, F1), and inspect feature importance weights.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Download & Install Section -->
+    <section id="download" class="px-4 py-16">
+        <div class="max-w-4xl mx-auto glass-card rounded-3xl shadow-2xl p-8 md:p-12 space-y-8">
+            <div class="text-center space-y-3">
+                <h2 class="text-3xl md:text-4xl font-black text-[#0b1c30]">Download & Installation Guide</h2>
+                <p class="text-[#45464d] max-w-xl mx-auto">Run the system locally on any Windows machine. No coding experience required.</p>
+            </div>
+
+            <!-- Quick Start -->
+            <div class="bg-[#f0f7ff] rounded-2xl p-6 border border-[#dce9ff] space-y-4">
+                <h3 class="font-bold text-xl text-[#0058be] flex items-center gap-2">
+                    <span class="material-symbols-outlined">bolt</span>
+                    Quick Start (Windows)
+                </h3>
+                <ol class="list-decimal list-inside space-y-3 text-sm text-[#45464d]">
+                    <li><strong>Download Python</strong> from <a href="https://www.python.org/downloads/" class="text-[#0058be] font-bold hover:underline" target="_blank">python.org/downloads</a> (check "Add Python to PATH" during installation).</li>
+                    <li><strong>Download the project</strong> as a ZIP file using the button below and extract it to a folder.</li>
+                    <li><strong>Double-click</strong> <code>start.bat</code> — it will automatically install dependencies and launch the app.</li>
+                    <li>Your browser will open at <code class="font-bold">http://127.0.0.1:5000</code>.</li>
+                </ol>
+            </div>
+
+            <!-- Download Button -->
+            <div class="text-center">
+                <a href="#" onclick="alert('To download, zip the entire project folder and share it. The start.bat script handles setup automatically.')"
+                   class="inline-flex items-center gap-3 bg-[#0058be] hover:bg-[#004395] text-white font-bold px-10 py-4 rounded-xl text-lg transition-all hover:scale-105 active:scale-95 shadow-lg">
+                    <span class="material-symbols-outlined">folder_zip</span>
+                    Download Project (ZIP)
+                </a>
+                <p class="text-xs text-[#76777d] mt-2">Alternatively, zip the project folder and distribute it.</p>
+            </div>
+
+            <!-- Default Credentials & Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-[#e2e8f0] space-y-3">
+                    <h3 class="font-bold text-lg text-[#0b1c30] flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#0058be]">key</span>
+                        Default Credentials
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="bg-[#f8f9ff] rounded-lg p-3 border border-[#e2e8f0]">
+                            <p class="text-[#76777d] text-xs font-bold uppercase tracking-wider">Administrator</p>
+                            <p class="font-mono font-bold">Username: <span class="text-[#0058be]">admin</span></p>
+                            <p class="font-mono font-bold">Password: <span class="text-[#0058be]">admin123</span></p>
+                        </div>
+                        <div class="bg-[#f8f9ff] rounded-lg p-3 border border-[#e2e8f0]">
+                            <p class="text-[#76777d] text-xs font-bold uppercase tracking-wider">Fraud Analyst</p>
+                            <p class="font-mono font-bold">Username: <span class="text-[#0058be]">analyst</span></p>
+                            <p class="font-mono font-bold">Password: <span class="text-[#0058be]">analyst123</span></p>
+                        </div>
+                        <p class="text-xs text-[#76777d]">Passwords can be customized via <code class="font-mono">FRAUDGUARD_ADMIN_PW</code> and <code class="font-mono">FRAUDGUARD_ANALYST_PW</code> environment variables.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-[#e2e8f0] space-y-3">
+                    <h3 class="font-bold text-lg text-[#0b1c30] flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#0058be]">info</span>
+                        System Details
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b py-1"><span class="text-[#76777d]">Backend</span><span class="font-bold">Python Flask</span></div>
+                        <div class="flex justify-between border-b py-1"><span class="text-[#76777d]">ML Model</span><span class="font-bold">XGBoost (95% accuracy)</span></div>
+                        <div class="flex justify-between border-b py-1"><span class="text-[#76777d]">Frontend</span><span class="font-bold">Tailwind CSS + Chart.js</span></div>
+                        <div class="flex justify-between border-b py-1"><span class="text-[#76777d]">Database</span><span class="font-bold">SQLite</span></div>
+                        <div class="flex justify-between border-b py-1"><span class="text-[#76777d]">Port</span><span class="font-bold">127.0.0.1:5000</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Guide -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-xl text-[#0b1c30] flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#0058be]">menu_book</span>
+                    Detailed Installation Steps
+                </h3>
+                <div class="bg-white rounded-2xl p-6 border border-[#e2e8f0] text-sm space-y-4">
+                    <div>
+                        <h4 class="font-bold text-[#0b1c30] mb-1">Step 1: Install Python</h4>
+                        <p class="text-[#45464d]">Download and install Python 3.10 or later from <a href="https://www.python.org/downloads/" class="text-[#0058be] font-bold hover:underline" target="_blank">python.org</a>. <strong>Important:</strong> Check the box <em>"Add Python to PATH"</em> during installation.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#0b1c30] mb-1">Step 2: Download & Extract</h4>
+                        <p class="text-[#45464d]">Download the project ZIP file and extract it to any folder (e.g., <code>C:\FraudGuardAI</code>).</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#0b1c30] mb-1">Step 3: Run the App</h4>
+                        <p class="text-[#45464d]">Double-click <code>start.bat</code>. This script will:</p>
+                        <ul class="list-disc list-inside ml-4 mt-1 space-y-1 text-[#45464d]">
+                            <li>Verify Python is installed</li>
+                            <li>Create a virtual environment</li>
+                            <li>Install all required dependencies (Flask, Pandas, NumPy, Scikit-learn, XGBoost)</li>
+                            <li>Launch the application</li>
+                            <li>Open your browser to the login page</li>
+                        </ul>
+                        <p class="text-[#45464d] mt-2">The first run may take 1-2 minutes as it installs dependencies and trains the machine learning model.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#0b1c30] mb-1">Step 4: Login</h4>
+                        <p class="text-[#45464d]">Use the credentials above to log in as an Administrator or Fraud Analyst and explore the system.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Run Instructions -->
+            <div class="bg-[#f8f9ff] rounded-2xl p-6 border border-[#e2e8f0] space-y-2">
+                <h3 class="font-bold text-lg text-[#0b1c30] flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#0058be]">terminal</span>
+                    Manual Command Line Setup
+                </h3>
+                <p class="text-sm text-[#45464d]">Alternatively, run these commands in the project folder:</p>
+                <pre class="bg-[#0b1c30] text-white rounded-xl p-4 text-sm overflow-x-auto">python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+set FRAUDGUARD_ADMIN_PW=admin123
+set FRAUDGUARD_ANALYST_PW=analyst123
+python app.py</pre>
+                <p class="text-xs text-[#76777d]">Then open <code class="font-bold">http://127.0.0.1:5000/login</code> in your browser.</p>
+            </div>
+
+            <!-- System Screenshots / Navigation -->
+            <div class="text-center pt-4 border-t border-[#e2e8f0]">
+                <h3 class="font-bold text-xl text-[#0b1c30] mb-4">System Modules</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Dashboard</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Transaction Monitor</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Alert Investigation</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Model Lab</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Transaction Sandbox</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">User Management</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">Profile Settings</div>
+                    <div class="bg-white rounded-xl p-4 border border-[#e2e8f0] font-bold text-[#0058be]">PRD Specs</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 px-4">
+        <p class="text-sm text-white/60">FraudGuard AI &mdash; Deborah Patrick's Machine Learning-Based Fraud Detection System</p>
+        <p class="text-xs text-white/40 mt-1">Capstone Project &bull; FinTech Domain &bull; XGBoost Classifier</p>
+    </footer>
+</body>
+</html>
