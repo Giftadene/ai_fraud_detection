@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FraudGuard AI - Login</title>
+    <link href="/static/favicon.png" rel="icon" type="image/png"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0b1c30 0%, #1a2d4a 50%, #0b1c30 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card rounded-2xl shadow-2xl w-full max-w-md p-8 space-y-6">
+        <div class="text-center space-y-2">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <img alt="FraudGuard AI" class="h-12 w-12 object-contain" src="/static/logo.png"/>
+            </div>
+            <h1 class="text-3xl font-black text-[#0b1c30]">FraudGuard AI</h1>
+            <p class="text-sm text-[#45464d]">Enterprise Fraud Detection System</p>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-[#45464d] uppercase tracking-wider">Username</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#76777d] text-sm">person</span>
+                    <input id="login-username" type="text" class="w-full bg-[#f8f9ff] border border-[#c6c6cd] rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-[#0058be]/20 focus:border-[#0058be] transition-all" placeholder="Enter username" required/>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-[#45464d] uppercase tracking-wider">Password</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#76777d] text-sm">lock</span>
+                    <input id="login-password" type="password" class="w-full bg-[#f8f9ff] border border-[#c6c6cd] rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-[#0058be]/20 focus:border-[#0058be] transition-all" placeholder="Enter password" required/>
+                </div>
+            </div>
+
+            <p id="login-error" class="text-red-600 text-xs font-bold hidden"></p>
+
+            <button type="submit" class="w-full bg-[#0058be] hover:bg-[#004395] text-white font-bold py-2.5 rounded-lg transition-all hover:scale-[1.01] active:scale-95 shadow-md flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">login</span>
+                Sign In
+            </button>
+        </form>
+
+        <div class="text-center space-y-1 text-xs text-[#45464d] border-t pt-4">
+            <p><strong>First-time setup:</strong> Default credentials are configured via <span class="font-mono">FRAUDGUARD_ADMIN_PW</span> and <span class="font-mono">FRAUDGUARD_ANALYST_PW</span> environment variables.</p>
+            <p>Contact your system administrator for access credentials.</p>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            
+            errorEl.classList.add('hidden');
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    errorEl.innerText = data.error || 'Login failed';
+                    errorEl.classList.remove('hidden');
+                }
+            })
+            .catch(() => {
+                errorEl.innerText = 'Connection error. Please try again.';
+                errorEl.classList.remove('hidden');
+            });
+        }
+    </script>
+</body>
+</html>

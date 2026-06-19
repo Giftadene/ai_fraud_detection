@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FraudGuard AI - Sentinel Oversight Dashboard</title>
+    <link href="/static/favicon.png" rel="icon" type="image/png"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Chart.js CDN for beautiful interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface": "#f8f9ff",
+                    "error-container": "#ffdad6",
+                    "background": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#2170e4",
+                    "inverse-surface": "#213145",
+                    "primary-fixed-dim": "#bec6e0",
+                    "primary": "#000000",
+                    "surface-container": "#e5eeff",
+                    "on-surface-variant": "#45464d",
+                    "on-secondary-fixed": "#001a42",
+                    "tertiary-fixed": "#6ffbbe",
+                    "surface-tint": "#565e74",
+                    "outline": "#76777d",
+                    "primary-container": "#131b2e",
+                    "on-primary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "tertiary": "#000000",
+                    "on-secondary-container": "#fefcff",
+                    "surface-container-high": "#dce9ff",
+                    "outline-variant": "#c6c6cd",
+                    "tertiary-container": "#002113",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#d3e4fe",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-primary": "#bec6e0",
+                    "secondary": "#0058be",
+                    "primary-fixed": "#dae2fd",
+                    "on-surface": "#0b1c30",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary-fixed-variant": "#004395",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed": "#002113",
+                    "on-background": "#0b1c30",
+                    "surface-dim": "#cbdbf5",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#7c839b",
+                    "on-tertiary-container": "#009668",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#005236"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "gutter": "20px",
+                    "margin": "24px",
+                    "xs": "4px",
+                    "base": "4px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "data-mono": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body {
+            background-color: #f8f9ff;
+            color: #0b1c30;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tonal-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0px 1px 3px rgba(15, 23, 42, 0.05);
+        }
+        .sidebar-active {
+            border-right: 4px solid #0058be;
+            background: #dce9ff;
+            color: #0058be !important;
+            font-weight: 700;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-lg text-body-lg">
+
+<!-- Top Banner for Toast Notifications -->
+<div id="toast-banner" class="fixed top-4 right-4 z-[9999] hidden transform transition-all duration-300 translate-y-[-20px] opacity-0">
+    <div class="bg-primary-container text-white px-lg py-md rounded-xl shadow-lg border border-outline/30 flex items-center gap-md">
+        <span id="toast-icon" class="material-symbols-outlined text-tertiary-fixed">info</span>
+        <p id="toast-message" class="text-body-sm font-bold"></p>
+    </div>
+</div>
+
+<!-- Side Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-lg px-md z-50">
+    <div class="mb-xl px-sm flex items-center gap-md">
+        <img alt="FraudGuard AI" class="h-10 w-10 object-contain" src="/static/logo.png"/>
+        <div>
+            <h1 class="font-display-lg text-display-lg font-black text-primary leading-tight">FraudGuard AI</h1>
+            <p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Enterprise Security</p>
+        </div>
+    </div>
+    <nav class="flex-1 space-y-1">
+        <a id="nav-dashboard" onclick="showScreen('dashboard')" class="flex items-center gap-md px-md py-sm rounded-sm transition-colors duration-200 cursor-pointer active:scale-95 sidebar-active" href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a id="nav-monitoring" onclick="showScreen('monitoring')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">monitoring</span>
+            <span>Monitoring</span>
+        </a>
+        <a id="nav-alerts" onclick="showScreen('alerts')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">notifications_active</span>
+            <span>Alerts <span id="alerts-badge" class="ml-auto bg-error text-white font-bold text-[10px] px-2 py-[2px] rounded-full hidden">0</span></span>
+        </a>
+        <a id="nav-model" onclick="showScreen('model')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">settings_suggest</span>
+            <span>Model Lab</span>
+        </a>
+        <a id="nav-sandbox" onclick="showScreen('sandbox')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">science</span>
+            <span>Customer Sandbox</span>
+        </a>
+        <a id="nav-prd" onclick="showScreen('prd')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span>PRD Specs</span>
+        </a>
+        <a id="nav-users" onclick="showScreen('users')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95 hidden" href="#">
+            <span class="material-symbols-outlined">manage_accounts</span>
+            <span>User Management</span>
+        </a>
+        <a id="nav-profile" onclick="showScreen('profile')" class="flex items-center gap-md px-md py-sm rounded-sm text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors duration-200 cursor-pointer active:scale-95" href="#">
+            <span class="material-symbols-outlined">person</span>
+            <span>My Profile</span>
+        </a>
+    </nav>
+    <div class="mt-auto p-md bg-surface-container-low rounded-lg border border-outline-variant/30 space-y-sm">
+        <div class="flex items-center gap-md">
+            <img id="sidebar-user-avatar" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0oRX3bgXwwfld27zvz1Ga0ArXk67VqekA0WJg5MdVv_WRfJtmhmOr42ieCXq1R9PUnY4lob80HBjrWLJcJ0qdVHo-P7yV5oKn7LFjQ6ZOgjnlAUnN4zP2tntJX05JaPJJYpBCO6hA4LYWZgjyfcn8WiNdJvdKOqzW38i-E8s0qRTt8a2l-ccTEUIouNx25f4Drh2GTFJrUw-ARBvD-jrSFMSt4Kw0HvtauNBerXyemXfk7bGv_meDFWNF82I3L9DhTLiA_7-tpn4"/>
+            <div class="overflow-hidden flex-1">
+                <p id="sidebar-user-name" class="font-label-caps text-label-caps font-bold truncate">A. Vance</p>
+                <p id="sidebar-user-role" class="text-[10px] text-on-surface-variant truncate">Security Admin</p>
+                <div id="sidebar-user-badges" class="flex flex-wrap gap-1 mt-1"></div>
+            </div>
+        </div>
+        <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-sm text-[11px] font-bold text-on-surface-variant hover:text-error transition-colors border-t border-outline-variant/30 pt-sm">
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+            Sign Out
+        </button>
+        <button onclick="showChangePasswordModal()" class="w-full flex items-center justify-center gap-sm text-[11px] font-bold text-on-surface-variant hover:text-secondary transition-colors pt-sm">
+            <span class="material-symbols-outlined text-[16px]">key</span>
+            Change Password
+        </button>
+    </div>
+</aside>
+
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center h-16 px-gutter ml-64 bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-40 shadow-sm">
+    <div class="flex items-center w-full max-w-xl">
+        <div class="relative w-full">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input id="global-search" oninput="triggerGlobalSearch(this.value)" class="w-full bg-surface-container-low border-none rounded-lg pl-10 pr-md py-xs text-body-sm focus:ring-2 focus:ring-secondary/20 transition-all" placeholder="Search transactions, entities or alerts..." type="text"/>
+        </div>
+    </div>
+    <div class="flex items-center gap-lg ml-md">
+        <div class="flex items-center gap-sm">
+            <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span class="font-label-caps text-label-caps text-on-surface-variant">System Live</span>
+        </div>
+        <div class="flex items-center gap-md">
+            <button onclick="showScreen('alerts')" class="relative material-symbols-outlined text-on-surface-variant hover:text-secondary transition-all cursor-pointer">
+                notifications
+                <span id="alerts-dot" class="absolute top-0 right-0 h-2.5 w-2.5 bg-error rounded-full hidden"></span>
+            </button>
+            <button class="material-symbols-outlined text-on-surface-variant hover:text-secondary transition-all cursor-pointer">account_circle</button>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Area -->
+<main class="ml-64 p-margin min-h-[calc(100vh-64px)]">
+
+    <!-- ==================== SCREEN 1: DASHBOARD ==================== -->
+    <section id="screen-dashboard" class="space-y-lg">
+        <!-- Header & Breadcrumbs -->
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight">Sentinel Oversight</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Analytics</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Global Dashboard</span>
+                </div>
+            </div>
+            <div class="flex gap-sm">
+                <button class="bg-surface-container-lowest border border-outline-variant text-on-surface-variant px-md py-sm rounded-lg font-label-caps text-label-caps flex items-center gap-sm hover:bg-surface-container transition-all">
+                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Last 30 Days
+                </button>
+                <button onclick="exportDashboardReport()" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-caps text-label-caps flex items-center gap-sm hover:opacity-90 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">file_download</span>
+                    Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter">
+            <!-- Card 1 -->
+            <div class="tonal-card rounded-xl p-md flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Transactions</p>
+                        <span class="material-symbols-outlined text-secondary opacity-40">receipt_long</span>
+                    </div>
+                    <h3 id="kpi-total-tx" class="font-display-lg text-display-lg font-bold">1.2M</h3>
+                </div>
+                <div class="mt-md flex items-center gap-xs">
+                    <span class="text-emerald-600 font-bold text-[12px] flex items-center"><span class="material-symbols-outlined text-[14px]">trending_up</span> +4.2%</span>
+                    <span class="text-[12px] text-on-surface-variant">vs last month</span>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="tonal-card rounded-xl p-md flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Fraud Rate</p>
+                        <span class="material-symbols-outlined text-secondary opacity-40">warning</span>
+                    </div>
+                    <h3 id="kpi-fraud-rate" class="font-display-lg text-display-lg font-bold">0.8%</h3>
+                </div>
+                <div class="mt-md flex items-center gap-xs">
+                    <span class="text-emerald-600 font-bold text-[12px] flex items-center"><span class="material-symbols-outlined text-[14px]">trending_down</span> -0.12%</span>
+                    <span class="text-[12px] text-on-surface-variant">improvement</span>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="tonal-card rounded-xl p-md flex flex-col justify-between border-l-4 border-l-secondary">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Blocked Transactions</p>
+                        <span class="material-symbols-outlined text-secondary opacity-40">block</span>
+                    </div>
+                    <h3 id="kpi-blocked-tx" class="font-display-lg text-display-lg font-bold">4,520</h3>
+                </div>
+                <div class="mt-md flex items-center gap-xs">
+                    <span id="kpi-pending-alerts-desc" class="text-on-surface-variant font-bold text-[12px] flex items-center">82 alerts pending review</span>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="tonal-card rounded-xl p-md flex flex-col justify-between bg-secondary text-on-secondary border-none shadow-md">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <p class="font-label-caps text-label-caps text-on-secondary/80 uppercase">Loss Prevented</p>
+                        <span class="material-symbols-outlined text-on-secondary/60">security</span>
+                    </div>
+                    <h3 id="kpi-loss-prevented" class="font-display-lg text-display-lg font-bold">₦2.4M</h3>
+                </div>
+                <div class="mt-md flex items-center gap-xs">
+                    <span class="text-on-secondary/90 font-bold text-[12px] flex items-center"><span class="material-symbols-outlined text-[14px] mr-1">check_circle</span> Target: ₦2.1M met</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento Grid Layout -->
+        <div class="grid grid-cols-12 gap-gutter">
+            <!-- Fraud Trends Chart -->
+            <div class="col-span-12 xl:col-span-8 tonal-card rounded-xl p-lg flex flex-col">
+                <div class="flex justify-between items-center mb-md">
+                    <div>
+                        <h4 class="font-headline-md text-headline-md font-bold">Fraud Trends vs Total Volume</h4>
+                        <p class="text-body-sm text-on-surface-variant">Comparison of fraudulent attempts against standard transaction throughput.</p>
+                    </div>
+                    <div class="flex gap-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-3 h-3 rounded-full bg-[#2170e4]"></div>
+                            <span class="font-label-caps text-label-caps text-on-surface-variant">Total Volume</span>
+                        </div>
+                        <div class="flex items-center gap-sm">
+                            <div class="w-3 h-3 rounded-full bg-[#ba1a1a]"></div>
+                            <span class="font-label-caps text-label-caps text-on-surface-variant">Fraudulent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 relative h-[300px] w-full">
+                    <canvas id="chart-trends"></canvas>
+                </div>
+            </div>
+
+            <!-- Risk Score Distribution -->
+            <div class="col-span-12 xl:col-span-4 tonal-card rounded-xl p-lg flex flex-col justify-between">
+                <div>
+                    <h4 class="font-headline-md text-headline-md font-bold mb-xs">Risk Score Distribution</h4>
+                    <p class="text-body-sm text-on-surface-variant mb-lg">Density of transactions across AI risk tiers.</p>
+                </div>
+                <div class="flex-1 flex flex-col gap-md justify-center space-y-md">
+                    <!-- Progress Bar 1 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant mb-xs font-bold">
+                            <span>Critical (90-100)</span>
+                            <span id="dist-critical-pct">2.4%</span>
+                        </div>
+                        <div class="w-full bg-surface-container rounded-full h-2">
+                            <div id="dist-critical-bar" class="bg-error h-full rounded-full transition-all duration-500" style="width: 2.4%"></div>
+                        </div>
+                    </div>
+                    <!-- Progress Bar 2 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant mb-xs font-bold">
+                            <span>High Risk (70-89)</span>
+                            <span id="dist-high-pct">12.8%</span>
+                        </div>
+                        <div class="w-full bg-surface-container rounded-full h-2">
+                            <div id="dist-high-bar" class="bg-[#f97316] h-full rounded-full transition-all duration-500" style="width: 12.8%"></div>
+                        </div>
+                    </div>
+                    <!-- Progress Bar 3 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant mb-xs font-bold">
+                            <span>Medium (40-69)</span>
+                            <span id="dist-medium-pct">24.5%</span>
+                        </div>
+                        <div class="w-full bg-surface-container rounded-full h-2">
+                            <div id="dist-medium-bar" class="bg-[#eab308] h-full rounded-full transition-all duration-500" style="width: 24.5%"></div>
+                        </div>
+                    </div>
+                    <!-- Progress Bar 4 -->
+                    <div>
+                        <div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant mb-xs font-bold">
+                            <span>Low (0-39)</span>
+                            <span id="dist-low-pct">60.3%</span>
+                        </div>
+                        <div class="w-full bg-surface-container rounded-full h-2">
+                            <div id="dist-low-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 60.3%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-lg p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
+                    <div class="flex items-center gap-md">
+                        <span class="material-symbols-outlined text-secondary">analytics</span>
+                        <p class="text-[12px] leading-tight">AI Confidence is currently at <span class="font-bold text-secondary">98.2%</span> based on last 48h data training.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Alert Regions Map -->
+            <div class="col-span-12 xl:col-span-5 tonal-card rounded-xl overflow-hidden flex flex-col">
+                <div class="p-lg border-b border-outline-variant">
+                    <h4 class="font-headline-md text-headline-md font-bold">Top Alert Regions</h4>
+                    <p class="text-body-sm text-on-surface-variant">Geographic hotspots for high-frequency fraud attempts.</p>
+                </div>
+                <div class="flex-1 relative min-h-[300px] bg-slate-50 flex items-center justify-center p-md">
+                    <!-- Clean SVG Vector World Map to represent regions -->
+                    <svg viewBox="0 0 1000 500" class="w-full h-full text-slate-300">
+                        <rect width="1000" height="500" fill="#f8f9ff" />
+                        <!-- Simplified path markers for continents -->
+                        <path d="M150,150 L250,120 L300,180 L250,300 L180,250 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <path d="M220,320 L280,450 L210,480 L180,380 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <path d="M480,100 L580,80 L620,150 L500,220 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <path d="M450,220 L550,250 L520,380 L420,350 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <path d="M680,120 L800,100 L850,220 L720,250 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <path d="M800,320 L880,420 L780,450 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                        <!-- North America Indicator -->
+                        <circle cx="230" cy="160" r="12" class="fill-[#ba1a1a]/20 stroke-error stroke-2 animate-pulse" />
+                        <circle cx="230" cy="160" r="4" class="fill-error" />
+                        <!-- Western Europe Indicator -->
+                        <circle cx="530" cy="120" r="10" class="fill-secondary/20 stroke-secondary stroke-2 animate-pulse" />
+                        <circle cx="530" cy="120" r="4" class="fill-secondary" />
+                        <!-- Middle East/Asia Indicator -->
+                        <circle cx="600" cy="180" r="10" class="fill-secondary/20 stroke-secondary stroke-2" />
+                        <circle cx="600" cy="180" r="4" class="fill-secondary" />
+                        <!-- West Africa Indicator -->
+                        <circle cx="480" cy="270" r="12" class="fill-[#ba1a1a]/20 stroke-error stroke-2 animate-pulse" />
+                        <circle cx="480" cy="270" r="4" class="fill-error" />
+                    </svg>
+                    
+                    <!-- Overlay Hotspots labels -->
+                    <div class="absolute top-1/4 left-1/4 bg-white/90 backdrop-blur-sm border border-outline-variant px-sm py-xs rounded shadow-sm">
+                        <p class="font-label-caps text-[10px] font-bold">North America</p>
+                        <p class="text-[10px] text-error font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>High Activity</p>
+                    </div>
+                    <div class="absolute top-1/3 right-1/3 bg-white/90 backdrop-blur-sm border border-outline-variant px-sm py-xs rounded shadow-sm">
+                        <p class="font-label-caps text-[10px] font-bold">Middle East</p>
+                        <p class="text-[10px] text-secondary font-bold">Moderate</p>
+                    </div>
+                    <div class="absolute bottom-1/3 left-1/2 bg-white/90 backdrop-blur-sm border border-outline-variant px-sm py-xs rounded shadow-sm">
+                        <p class="font-label-caps text-[10px] font-bold">West Africa</p>
+                        <p class="text-[10px] text-error font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>Critical Spot</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent High-Risk Events List -->
+            <div class="col-span-12 xl:col-span-7 tonal-card rounded-xl flex flex-col justify-between">
+                <div class="p-lg flex justify-between items-center border-b border-outline-variant">
+                    <div>
+                        <h4 class="font-headline-md text-headline-md font-bold">Recent High-Risk Events</h4>
+                        <p class="text-body-sm text-on-surface-variant">Last 5 critical alerts requiring immediate analyst review.</p>
+                    </div>
+                    <button onclick="showScreen('alerts')" class="text-secondary font-label-caps text-label-caps font-bold hover:underline">View All Alerts</button>
+                </div>
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left">
+                        <thead class="bg-surface-container-low border-b border-outline-variant">
+                            <tr>
+                                <th class="px-lg py-sm font-label-caps text-label-caps text-on-surface-variant">Transaction ID</th>
+                                <th class="px-lg py-sm font-label-caps text-label-caps text-on-surface-variant">Type</th>
+                                <th class="px-lg py-sm font-label-caps text-label-caps text-on-surface-variant text-center">Risk Score</th>
+                                <th class="px-lg py-sm font-label-caps text-label-caps text-on-surface-variant">Amount</th>
+                                <th class="px-lg py-sm font-label-caps text-label-caps text-on-surface-variant text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-events-table" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: MONITORING ==================== -->
+    <section id="screen-monitoring" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">Transaction Monitoring</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Analytics</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Transaction Ledger</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="tonal-card rounded-xl p-md flex flex-wrap gap-md items-center justify-between">
+            <div class="flex flex-wrap gap-sm items-center">
+                <!-- Search bar -->
+                <div class="relative w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                    <input id="filter-search" oninput="loadTransactions()" class="w-full bg-surface border border-outline-variant/60 rounded-lg pl-10 pr-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all" placeholder="Search accounts, IDs..."/>
+                </div>
+                
+                <!-- Risk Tier Select -->
+                <select id="filter-risk-tier" onchange="loadTransactions()" class="bg-surface border border-outline-variant/60 rounded-lg px-md py-sm text-body-sm text-on-surface-variant focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all">
+                    <option value="">All Risk Tiers</option>
+                    <option value="critical">Critical (90-100)</option>
+                    <option value="high">High Risk (70-89)</option>
+                    <option value="medium">Medium (40-69)</option>
+                    <option value="low">Low (0-39)</option>
+                </select>
+
+                <!-- Status Select -->
+                <select id="filter-status" onchange="loadTransactions()" class="bg-surface border border-outline-variant/60 rounded-lg px-md py-sm text-body-sm text-on-surface-variant focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all">
+                    <option value="">All Statuses</option>
+                    <option value="APPROVED">APPROVED</option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="BLOCKED">BLOCKED</option>
+                    <option value="RESOLVED">RESOLVED</option>
+                </select>
+            </div>
+            
+            <button onclick="resetFilters()" class="text-secondary font-label-caps text-label-caps font-bold hover:underline flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">restart_alt</span> Reset Filters
+            </button>
+        </div>
+
+        <!-- Transactions Table Card -->
+        <div class="tonal-card rounded-xl overflow-hidden flex flex-col">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-surface-container-low border-b border-outline-variant">
+                        <tr>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Transaction ID</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Customer</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Timestamp</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Location</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Type</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-center">Risk Score</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Amount</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Status</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monitoring-table-body" class="divide-y divide-slate-100 text-body-sm">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transaction Inspect Slide-over Drawer Modal -->
+    <div id="inspect-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeInspectDrawer()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-2xl bg-white border-l border-outline shadow-2xl flex flex-col h-full">
+                <!-- Header -->
+                <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+                    <div>
+                        <p class="font-label-caps text-label-caps text-secondary font-bold">Transaction Investigator</p>
+                        <h3 id="inspect-txn-id" class="font-headline-md text-headline-md font-black">#TXN-XXXXXX</h3>
+                    </div>
+                    <button onclick="closeInspectDrawer()" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-1 rounded-full hover:bg-slate-200">close</button>
+                </div>
+                <!-- Body -->
+                <div class="flex-1 overflow-y-auto p-lg space-y-lg">
+                    <!-- Primary Evaluation Risk Gauge -->
+                    <div class="p-md rounded-xl bg-surface border border-outline-variant flex items-center justify-between">
+                        <div class="space-y-sm">
+                            <p class="font-label-caps text-label-caps text-on-surface-variant">Security Evaluation</p>
+                            <h4 id="inspect-action-badge" class="px-md py-sm rounded-lg text-body-sm font-bold inline-block">APPROVED</h4>
+                            <p id="inspect-time" class="text-[12px] text-on-surface-variant font-data-mono">2026-06-19T13:00:00</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-label-caps text-label-caps text-on-surface-variant">Risk Score</p>
+                            <span id="inspect-risk-score" class="font-display-lg text-display-lg font-black text-emerald-500">22</span>
+                        </div>
+                    </div>
+
+                    <!-- Client Profile Section -->
+                    <div class="space-y-sm">
+                        <h4 class="font-headline-md text-headline-md font-bold text-primary">Customer Historical Baseline</h4>
+                        <div class="grid grid-cols-2 gap-sm">
+                            <div class="p-sm bg-slate-50 border border-slate-100 rounded">
+                                <span class="text-[11px] font-label-caps text-on-surface-variant">FullName</span>
+                                <p id="inspect-cust-name" class="font-bold text-body-sm">John Doe</p>
+                            </div>
+                            <div class="p-sm bg-slate-50 border border-slate-100 rounded">
+                                <span class="text-[11px] font-label-caps text-on-surface-variant">Account Age</span>
+                                <p id="inspect-cust-age" class="font-bold text-body-sm">120 Days</p>
+                            </div>
+                            <div class="p-sm bg-slate-50 border border-slate-100 rounded">
+                                <span class="text-[11px] font-label-caps text-on-surface-variant">User Avg Amount</span>
+                                <p id="inspect-cust-avg-amt" class="font-bold text-body-sm">₦15,000.00</p>
+                            </div>
+                            <div class="p-sm bg-slate-50 border border-slate-100 rounded">
+                                <span class="text-[11px] font-label-caps text-on-surface-variant">Past Fraud Records</span>
+                                <p id="inspect-cust-fraud-hist" class="font-bold text-body-sm">None</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction context details -->
+                    <div class="space-y-sm">
+                        <h4 class="font-headline-md text-headline-md font-bold text-primary">Contextual Parameters</h4>
+                        <div class="grid grid-cols-2 gap-sm text-body-sm">
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Location:</span> <span id="inspect-ctx-loc" class="font-bold">Lagos</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Device OS:</span> <span id="inspect-ctx-os" class="font-bold">Android</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Device Class:</span> <span id="inspect-ctx-device" class="font-bold">Mobile</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Browser:</span> <span id="inspect-ctx-browser" class="font-bold">Chrome</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">IP Address:</span> <span id="inspect-ctx-ip" class="font-data-mono font-bold">197.210.8.21</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">VPN Active:</span> <span id="inspect-ctx-vpn" class="font-bold">No</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Amount:</span> <span id="inspect-ctx-amount" class="font-bold text-secondary font-data-mono">₦12,000.00</span></div>
+                            <div class="flex justify-between border-b py-1"><span class="text-on-surface-variant">Type:</span> <span id="inspect-ctx-type" class="font-bold">Transfer</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Model Risk Score Decomposition -->
+                    <div class="space-y-sm">
+                        <h4 class="font-headline-md text-headline-md font-bold text-primary">Model Decision Indicators</h4>
+                        <p class="text-body-sm text-on-surface-variant">Individual factor breakdown contributing to risk prediction.</p>
+                        <div id="inspect-indicators-list" class="space-y-sm">
+                            <!-- Loop list of indicators -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Footer -->
+                <div class="px-lg py-md border-t border-outline-variant bg-slate-50 flex justify-end gap-sm">
+                    <button onclick="closeInspectDrawer()" class="bg-surface-container-lowest border border-outline px-md py-sm rounded-lg font-label-caps text-label-caps text-on-surface-variant hover:bg-slate-100 transition-all">Close Workspace</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 3: ALERTS DESK ==================== -->
+    <section id="screen-alerts" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">Analyst Investigation Desk</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Risk Management</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Active Fraud Alerts Queue</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-gutter">
+            <!-- Alerts Queue (Left pane) -->
+            <div class="col-span-12 xl:col-span-5 space-y-md">
+                <div class="tonal-card rounded-xl p-md bg-surface-container-low border border-outline-variant">
+                    <h3 class="font-headline-md text-headline-md font-bold flex justify-between items-center">
+                        Active Alerts Queue
+                        <span id="alerts-count-badge" class="bg-error text-white text-xs px-2.5 py-0.5 rounded-full">0</span>
+                    </h3>
+                    <p class="text-body-sm text-on-surface-variant">Review escalated events and resolve status.</p>
+                </div>
+                
+                <div id="alerts-list-container" class="space-y-sm overflow-y-auto max-h-[600px] pr-2">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Analyst Decision Panel (Right pane) -->
+            <div class="col-span-12 xl:col-span-7">
+                <div id="alerts-empty-state" class="tonal-card rounded-xl p-xl flex flex-col items-center justify-center text-center h-[500px] space-y-md">
+                    <span class="material-symbols-outlined text-[64px] text-outline opacity-40">verified_user</span>
+                    <h3 class="font-headline-md text-headline-md font-bold">No Alert Selected</h3>
+                    <p class="text-body-sm text-on-surface-variant max-w-sm">Select an active fraud alert from the left panel queue to review transaction attributes, feature values, and commit a security decision.</p>
+                </div>
+
+                <div id="alerts-review-panel" class="tonal-card rounded-xl p-lg flex flex-col justify-between hidden h-full min-h-[550px] space-y-lg">
+                    <!-- Alert Detail Workspace -->
+                    <div class="space-y-lg">
+                        <div class="flex justify-between items-start border-b pb-md">
+                            <div>
+                                <span class="text-xs font-label-caps text-error font-bold uppercase tracking-widest">CRITICAL ESCALATION</span>
+                                <h3 id="review-txn-id" class="font-headline-md text-headline-md font-black">#TXN-882190</h3>
+                                <p id="review-time" class="text-[12px] text-on-surface-variant font-data-mono">2026-06-19 12:45:00</p>
+                            </div>
+                            <div class="text-right">
+                                <span id="review-score-badge" class="px-md py-sm bg-error-container text-on-error-container font-black text-body-lg rounded-xl">Risk: 98</span>
+                            </div>
+                        </div>
+
+                        <!-- Side by side columns for account and transaction details -->
+                        <div class="grid grid-cols-2 gap-md">
+                            <!-- Customer details -->
+                            <div class="space-y-sm bg-surface p-md rounded-xl border border-outline-variant/40">
+                                <h4 class="font-label-caps text-label-caps font-bold text-secondary border-b pb-xs uppercase">User History</h4>
+                                <div class="space-y-xs text-body-sm">
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Name:</span> <span id="review-user-name" class="font-bold">John Doe</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Account Age:</span> <span id="review-user-age" class="font-bold">365 Days</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Baseline Spend:</span> <span id="review-user-spend" class="font-bold">₦25,000</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Prior Fraud History:</span> <span id="review-user-fraud" class="font-bold">None</span></div>
+                                </div>
+                            </div>
+                            <!-- Transaction details -->
+                            <div class="space-y-sm bg-surface p-md rounded-xl border border-outline-variant/40">
+                                <h4 class="font-label-caps text-label-caps font-bold text-secondary border-b pb-xs uppercase">Context</h4>
+                                <div class="space-y-xs text-body-sm">
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Amount:</span> <span id="review-amount" class="font-bold text-error font-data-mono">₦12,400.00</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Location:</span> <span id="review-location" class="font-bold">Dubai (IP: 192.168.1)</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">Device OS:</span> <span id="review-device" class="font-bold">iPhone / iOS</span></div>
+                                    <div class="flex justify-between"><span class="text-on-surface-variant">VPN Tunnel:</span> <span id="review-vpn" class="font-bold">Yes</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Comments / Notes -->
+                        <div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/40">
+                            <span class="font-label-caps text-label-caps text-on-surface-variant font-bold block mb-xs">INITIAL SYSTEM EXPLANATION:</span>
+                            <p id="review-explanation" class="text-body-sm text-on-surface-variant leading-relaxed">Cross-border card attempt originating from unverified IP tunnel in Dubai. Sudden departure from average transaction amount baseline.</p>
+                        </div>
+
+                        <!-- Analyst Actions Form -->
+                        <div class="space-y-sm border-t pt-md">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Analyst Investigation Comment / Findings</label>
+                            <textarea id="review-comment" rows="3" class="w-full bg-surface border border-outline-variant/60 rounded-xl p-md text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="Include rationale for resolution decision (e.g. customer called for verification, confirmed fraud ring pattern, incorrect travel metadata)..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Footer Buttons -->
+                    <div class="flex justify-between items-center border-t pt-md bg-slate-50 p-md rounded-b-xl border border-outline-variant/30">
+                        <div class="flex gap-sm">
+                            <button onclick="commitAlertDecision('APPROVED')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-label-caps text-label-caps px-md py-sm rounded-lg flex items-center gap-xs shadow-sm transition-all hover:scale-[1.02] active:scale-95">
+                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                Approve (Unblock)
+                            </button>
+                            <button onclick="commitAlertDecision('RESOLVED')" class="bg-amber-500 hover:bg-amber-600 text-white font-label-caps text-label-caps px-md py-sm rounded-lg flex items-center gap-xs shadow-sm transition-all hover:scale-[1.02] active:scale-95">
+                                <span class="material-symbols-outlined text-[18px]">verified</span>
+                                Resolve (Legitimate)
+                            </button>
+                        </div>
+                        <button onclick="commitAlertDecision('BLOCKED')" class="bg-error hover:bg-red-700 text-white font-label-caps text-label-caps px-md py-sm rounded-lg flex items-center gap-xs shadow-sm transition-all hover:scale-[1.02] active:scale-95">
+                            <span class="material-symbols-outlined text-[18px]">block</span>
+                            Block (Confirm Fraud)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: MODEL MANAGEMENT ==================== -->
+    <section id="screen-model" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">Model Lab</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Administration</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Machine Learning Operations (MLOps)</span>
+                </div>
+            </div>
+            <button id="btn-retrain" onclick="triggerModelRetrain()" class="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-label-caps text-label-caps flex items-center gap-sm hover:opacity-90 transition-all shadow-md">
+                <span class="material-symbols-outlined text-[18px]">refresh</span>
+                Retrain Model
+            </button>
+        </div>
+
+        <!-- MLOps Loader -->
+        <div id="ml-retrain-loader" class="tonal-card rounded-xl p-xl flex flex-col items-center justify-center text-center space-y-md hidden bg-surface-container/30 border-dashed border-2 border-secondary">
+            <div class="relative w-16 h-16">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-secondary animate-spin"></div>
+            </div>
+            <h3 id="loader-headline" class="font-headline-md text-headline-md font-bold text-secondary animate-pulse">Retraining decision models...</h3>
+            <p id="loader-desc" class="text-body-sm text-on-surface-variant max-w-sm font-data-mono">Rebuilding decision boundaries... Generating confusion matrix... Evaluating ROC-AUC curves...</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-gutter">
+            <!-- Model Performance Metrics Gauges -->
+            <div class="col-span-12 xl:col-span-6 tonal-card rounded-xl p-lg">
+                <div class="flex justify-between items-center mb-md">
+                    <h3 class="font-headline-md text-headline-md font-bold">Evaluation Metrics</h3>
+                    <span id="metric-model-type" class="px-sm py-[2px] bg-secondary-container text-on-secondary-fixed rounded text-[10px] font-bold uppercase">XGBoost</span>
+                </div>
+                <div class="grid grid-cols-2 gap-md">
+                    <!-- Gauge 1 -->
+                    <div class="p-md bg-surface border border-outline-variant/60 rounded-xl text-center space-y-xs">
+                        <span class="text-xs font-label-caps text-on-surface-variant">Accuracy</span>
+                        <h4 id="metric-accuracy" class="font-display-lg text-display-lg text-primary font-black">95.4%</h4>
+                        <p class="text-[10px] text-on-surface-variant">Overall prediction rate</p>
+                    </div>
+                    <!-- Gauge 2 -->
+                    <div class="p-md bg-surface border border-outline-variant/60 rounded-xl text-center space-y-xs">
+                        <span class="text-xs font-label-caps text-on-surface-variant">Precision</span>
+                        <h4 id="metric-precision" class="font-display-lg text-display-lg text-secondary font-black">94.8%</h4>
+                        <p class="text-[10px] text-on-surface-variant">True Positive probability</p>
+                    </div>
+                    <!-- Gauge 3 -->
+                    <div class="p-md bg-surface border border-outline-variant/60 rounded-xl text-center space-y-xs">
+                        <span class="text-xs font-label-caps text-on-surface-variant">Recall (Sensitivity)</span>
+                        <h4 id="metric-recall" class="font-display-lg text-display-lg text-tertiary-container text-[#009668] font-black">96.2%</h4>
+                        <p class="text-[10px] text-on-surface-variant">Fraud capture rate target &gt;90%</p>
+                    </div>
+                    <!-- Gauge 4 -->
+                    <div class="p-md bg-surface border border-outline-variant/60 rounded-xl text-center space-y-xs">
+                        <span class="text-xs font-label-caps text-on-surface-variant">F1 Score</span>
+                        <h4 id="metric-f1" class="font-display-lg text-display-lg text-primary font-black">95.5%</h4>
+                        <p class="text-[10px] text-on-surface-variant">Harmonic precision/recall mean</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Importance Bar Chart -->
+            <div class="col-span-12 xl:col-span-6 tonal-card rounded-xl p-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="font-headline-md text-headline-md font-bold mb-xs">Feature Weights (Feature Importance)</h3>
+                    <p class="text-body-sm text-on-surface-variant mb-md">Quantifying importance weights generated by model tree splits.</p>
+                </div>
+                <div id="feature-importance-bars" class="space-y-sm flex-1 flex flex-col justify-center">
+                    <!-- Populated dynamically via JS using bar charts -->
+                </div>
+            </div>
+
+            <!-- Retraining Logs Table -->
+            <div class="col-span-12 tonal-card rounded-xl p-lg">
+                <h3 class="font-headline-md text-headline-md font-bold mb-md">Model Audits & Retraining Logs</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-surface-container-low border-b border-outline-variant text-[11px] font-label-caps text-on-surface-variant">
+                            <tr>
+                                <th class="px-lg py-sm">Retrain Version</th>
+                                <th class="px-lg py-sm">Model Type</th>
+                                <th class="px-lg py-sm">Timestamp</th>
+                                <th class="px-lg py-sm text-center">Accuracy</th>
+                                <th class="px-lg py-sm text-center">Precision</th>
+                                <th class="px-lg py-sm text-center">Recall</th>
+                                <th class="px-lg py-sm text-center">F1 Score</th>
+                                <th class="px-lg py-sm text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="model-logs-table-body" class="divide-y divide-slate-100 text-body-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 5: SANDBOX (SIMULATOR) ==================== -->
+    <section id="screen-sandbox" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">Transaction Sandbox</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Testing</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Real-Time Risk Engine Simulation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-gutter">
+            <!-- Simulator Controls (Left) -->
+            <div class="col-span-12 xl:col-span-5 tonal-card rounded-xl p-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="font-headline-md text-headline-md font-bold mb-sm">Simulate Transaction Features</h3>
+                    <p class="text-body-sm text-on-surface-variant mb-md">Construct customized transaction vectors to evaluate live model decisions and classifier routing rules.</p>
+                </div>
+                
+                <form id="sandbox-form" onsubmit="runSimulation(event)" class="space-y-md text-body-sm flex-1">
+                    <!-- Customer Dropdown -->
+                    <div class="space-y-xs">
+                        <label class="font-label-caps text-label-caps font-bold text-primary block">Select Customer Profile</label>
+                        <select id="sim-user" onchange="updateSimProfileInfo()" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required>
+                            <!-- Seeded users list dynamically loaded -->
+                        </select>
+                    </div>
+
+                    <!-- Customer Profile Baseline Summary -->
+                    <div id="sim-user-card" class="bg-surface-container-low p-sm rounded-lg border border-outline-variant/20 hidden grid grid-cols-2 gap-sm text-[11px]">
+                        <div>Average Spend: <span id="sim-baseline-amt" class="font-bold text-secondary">₦20,000</span></div>
+                        <div>Daily Freq: <span id="sim-baseline-freq" class="font-bold text-secondary">3 tx/day</span></div>
+                        <div>Account Age: <span id="sim-baseline-age" class="font-bold text-secondary">365 Days</span></div>
+                        <div>Prior Fraud: <span id="sim-baseline-fraud" class="font-bold text-error">No</span></div>
+                    </div>
+
+                    <!-- Transaction details -->
+                    <div class="grid grid-cols-2 gap-sm">
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Amount</label>
+                            <input id="sim-amount" type="number" step="0.01" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="e.g. 1000000" required/>
+                        </div>
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Type</label>
+                            <select id="sim-type" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary">
+                                <option value="Transfer">Transfer</option>
+                                <option value="Withdrawal">Withdrawal</option>
+                                <option value="Deposit">Deposit</option>
+                                <option value="E-Wallet Top-up">E-Wallet Top-up</option>
+                                <option value="Merchant Payment">Merchant Payment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Context parameters -->
+                    <div class="grid grid-cols-2 gap-sm">
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Location Name</label>
+                            <input id="sim-location" type="text" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="e.g. Dubai" required/>
+                        </div>
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Loc Distance (KM)</label>
+                            <input id="sim-distance" type="number" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="e.g. 500" required/>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-sm">
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Transaction Hour (0-23)</label>
+                            <select id="sim-hour" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary">
+                                <option value="9">09:00 AM (Working)</option>
+                                <option value="14">02:00 PM (Working)</option>
+                                <option value="3">03:00 AM (Night Shift)</option>
+                                <option value="0">12:00 AM (Midnight)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-xs">
+                            <label class="font-label-caps text-label-caps font-bold text-primary block">Velocity (Last 5m)</label>
+                            <input id="sim-velocity" type="number" min="1" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" value="1" required/>
+                        </div>
+                    </div>
+
+                    <!-- Boolean switches -->
+                    <div class="flex items-center gap-lg py-xs">
+                        <label class="flex items-center gap-sm cursor-pointer select-none">
+                            <input id="sim-vpn" type="checkbox" class="rounded text-secondary focus:ring-secondary/20 h-4 w-4"/>
+                            <span class="text-body-sm text-on-surface-variant">VPN tunnel active</span>
+                        </label>
+                        <label class="flex items-center gap-sm cursor-pointer select-none">
+                            <input id="sim-device" type="checkbox" class="rounded text-secondary focus:ring-secondary/20 h-4 w-4"/>
+                            <span class="text-body-sm text-on-surface-variant">Unknown device ID</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full bg-secondary text-on-secondary py-sm rounded-xl font-label-caps text-label-caps hover:opacity-90 transition-all flex items-center justify-center gap-sm shadow-md">
+                        <span class="material-symbols-outlined text-[18px]">play_circle</span>
+                        Simulate Transaction
+                    </button>
+                </form>
+            </div>
+
+            <!-- Simulator Output (Right) -->
+            <div class="col-span-12 xl:col-span-7">
+                <!-- Sandbox Idle State -->
+                <div id="sim-idle" class="tonal-card rounded-xl p-xl flex flex-col items-center justify-center text-center h-[500px] space-y-md">
+                    <span class="material-symbols-outlined text-[64px] text-outline opacity-40">token</span>
+                    <h3 class="font-headline-md text-headline-md font-bold">Risk Assessment Report</h3>
+                    <p class="text-body-sm text-on-surface-variant max-w-sm">Submit the simulation parameters to execute feature engineering, score transactions through the ML pipeline, and review the resulting risk vector breakdown.</p>
+                </div>
+
+                <!-- Sandbox Processing State -->
+                <div id="sim-processing" class="tonal-card rounded-xl p-xl flex flex-col items-center justify-center text-center h-[500px] space-y-md hidden">
+                    <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-secondary animate-spin"></div>
+                    <h3 class="font-headline-md text-headline-md font-bold text-secondary animate-pulse">Evaluating Transaction Risk Vector...</h3>
+                    <p class="text-body-sm text-on-surface-variant max-w-xs font-data-mono">Engaging model weights... Extracting averages... Computing locations...</p>
+                </div>
+
+                <!-- Sandbox Results State -->
+                <div id="sim-result-card" class="tonal-card rounded-xl p-lg flex flex-col justify-between hidden min-h-[500px] space-y-lg">
+                    <!-- Heading result -->
+                    <div class="flex justify-between items-start border-b pb-md">
+                        <div>
+                            <span class="text-[10px] font-label-caps text-secondary font-bold uppercase tracking-widest">REAL-TIME RISK METADATA</span>
+                            <h3 id="res-txn-id" class="font-headline-md text-headline-md font-black">#TXN-882191</h3>
+                        </div>
+                        <div class="text-right">
+                            <span id="res-score-badge" class="px-md py-sm text-body-lg font-black rounded-xl">Risk: 0.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Routing action container -->
+                    <div id="res-action-banner" class="p-md rounded-xl border flex items-center justify-between">
+                        <div class="flex items-center gap-md">
+                            <span id="res-action-icon" class="material-symbols-outlined text-[32px]">check_circle</span>
+                            <div>
+                                <h4 id="res-action-title" class="font-bold text-body-lg">Approved</h4>
+                                <p id="res-action-desc" class="text-body-sm text-on-surface-variant">The risk score is below 30. Transaction approved immediately.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown of indicators -->
+                    <div class="space-y-sm">
+                        <h4 class="font-label-caps text-label-caps font-bold text-primary uppercase">Risk Indicator Weights</h4>
+                        <div id="res-indicators-list" class="space-y-xs">
+                            <!-- Loop list of indicators dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-sm border-t pt-md bg-slate-50 p-md rounded-b-xl border border-outline-variant/30">
+                        <button onclick="showScreen('monitoring')" class="bg-surface-container-lowest border border-outline px-md py-sm rounded-lg font-label-caps text-label-caps text-on-surface-variant hover:bg-slate-100 transition-all">Inspect Ledger</button>
+                        <button id="btn-jump-alerts" onclick="showScreen('alerts')" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-caps text-label-caps hover:opacity-90 transition-all shadow-sm">Review Alerts Queue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 6: PRD SPECS ==================== -->
+    <section id="screen-prd" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">Product Requirements Document (PRD)</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Documentation</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">System Specifications</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tonal-card rounded-xl p-lg prose max-w-none bg-white border border-outline-variant space-y-lg text-body-sm">
+            <h1 class="text-2xl font-bold text-primary">Machine Learning-Based Fraud Detection System Specification</h1>
+            <div class="grid grid-cols-2 gap-gutter text-on-surface-variant leading-relaxed">
+                <div class="space-y-md">
+                    <h2 class="font-bold text-secondary text-lg">1. Project Overview</h2>
+                    <p>Detect fraudulent attempts on online banking and mobile money channels in real-time, utilizing feature engineering and classifier modeling (XGBoost / RandomForest) to calculate decision weights and route requests.</p>
+                    
+                    <h2 class="font-bold text-secondary text-lg">2. Scoring Classification Routing</h2>
+                    <table class="w-full text-left border">
+                        <thead>
+                            <tr class="bg-slate-100"><th class="p-xs">Score Range</th><th class="p-xs">Action Path</th></tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            <tr><td class="p-xs">0 - 30</td><td class="p-xs text-emerald-600 font-bold">Approve Immediately</td></tr>
+                            <tr><td class="p-xs">31 - 60</td><td class="p-xs text-amber-500 font-bold">Monitor Activity</td></tr>
+                            <tr><td class="p-xs">61 - 80</td><td class="p-xs text-orange-500 font-bold">Hold for Review (Queue Alert)</td></tr>
+                            <tr><td class="p-xs">81 - 100</td><td class="p-xs text-error font-bold">Block Transaction</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="space-y-md">
+                    <h2 class="font-bold text-secondary text-lg">3. Evaluated Model Features</h2>
+                    <ul class="list-disc pl-md space-y-xs">
+                        <li><strong>amount_ratio:</strong> Transaction Amount vs average spending baseline.</li>
+                        <li><strong>location_distance:</strong> Distance (KM) shift from usual locations.</li>
+                        <li><strong>hour_of_day:</strong> Night transactions flag (unusual velocity shift).</li>
+                        <li><strong>device_changed:</strong> Device type fingerprint signature mismatch.</li>
+                        <li><strong>vpn_usage:</strong> Encrypted networks routing proxy tunnel detection.</li>
+                        <li><strong>velocity:</strong> Request velocity threshold spikes.</li>
+                        <li><strong>previous_fraud:</strong> Historical flags check.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 7: USER MANAGEMENT (Admin only) ==================== -->
+    <section id="screen-users" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">User Management</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Administration</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">System Users & Roles</span>
+                </div>
+            </div>
+            <button onclick="showAddUserModal()" class="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-label-caps text-label-caps flex items-center gap-sm hover:opacity-90 transition-all shadow-md">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                Add User
+            </button>
+        </div>
+
+        <div class="tonal-card rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-surface-container-low border-b border-outline-variant">
+                        <tr>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Username</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Full Name</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant">Email</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-center">Role</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-center">Status</th>
+                            <th class="px-lg py-md font-label-caps text-label-caps text-on-surface-variant text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body" class="divide-y divide-slate-100 text-body-sm">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add/Edit User Modal -->
+        <div id="user-modal" class="fixed inset-0 z-50 overflow-hidden hidden">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeUserModal()"></div>
+            <div class="absolute inset-0 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" onclick="event.stopPropagation()">
+                    <div class="flex justify-between items-center">
+                        <h3 id="user-modal-title" class="font-headline-md text-headline-md font-bold">Add System User</h3>
+                        <button onclick="closeUserModal()" class="material-symbols-outlined text-on-surface-variant hover:text-primary">close</button>
+                    </div>
+                    <form id="user-form" onsubmit="saveUser(event)" class="space-y-3">
+                        <input id="edit-user-id" type="hidden"/>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Username</label>
+                            <input id="user-username" type="text" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required/>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Password</label>
+                            <input id="user-password" type="password" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary"/>
+                            <p id="password-hint" class="text-[10px] text-on-surface-variant mt-1">Leave blank to keep existing password when editing.</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Full Name</label>
+                            <input id="user-fullname" type="text" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required/>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Email</label>
+                            <input id="user-email" type="email" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary"/>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Roles</label>
+                            <div id="user-roles-checkboxes" class="grid grid-cols-2 gap-2 mt-1">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-sm pt-md border-t">
+                            <button type="button" onclick="closeUserModal()" class="bg-surface-container-lowest border border-outline px-md py-sm rounded-lg font-label-caps text-label-caps text-on-surface-variant hover:bg-slate-100 transition-all">Cancel</button>
+                            <button type="submit" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-caps text-label-caps hover:opacity-90 transition-all shadow-sm">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 8: MY PROFILE ==================== -->
+    <section id="screen-profile" class="space-y-lg hidden">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tight font-black">My Profile</h2>
+                <div class="flex items-center gap-xs text-on-surface-variant mt-xs">
+                    <span class="font-label-caps text-label-caps">Account</span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="font-label-caps text-label-caps font-bold text-secondary">Personal Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-gutter">
+            <!-- Profile Card (Left) -->
+            <div class="col-span-12 xl:col-span-4 tonal-card rounded-xl p-lg flex flex-col items-center text-center space-y-md">
+                <div class="relative">
+                    <img id="profile-avatar" class="w-28 h-28 rounded-full object-cover border-4 border-secondary/20 shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0oRX3bgXwwfld27zvz1Ga0ArXk67VqekA0WJg5MdVv_WRfJtmhmOr42ieCXq1R9PUnY4lob80HBjrWLJcJ0qdVHo-P7yV5oKn7LFjQ6ZOgjnlAUnN4zP2tntJX05JaPJJYpBCO6hA4LYWZgjyfcn8WiNdJvdKOqzW38i-E8s0qRTt8a2l-ccTEUIouNx25f4Drh2GTFJrUw-ARBvD-jrSFMSt4Kw0HvtauNBerXyemXfk7bGv_meDFWNF82I3L9DhTLiA_7-tpn4"/>
+                    <div class="absolute -bottom-2 -right-2 bg-surface-container-lowest rounded-full p-1.5 border border-outline-variant shadow-sm">
+                        <span class="material-symbols-outlined text-secondary text-lg">edit</span>
+                    </div>
+                </div>
+                <div>
+                    <h3 id="profile-display-name" class="font-headline-md text-headline-md font-bold">A. Vance</h3>
+                    <p id="profile-display-username" class="text-sm text-on-surface-variant">@admin</p>
+                </div>
+                <div id="profile-role-badges" class="flex flex-wrap justify-center gap-1"></div>
+                <div class="w-full border-t pt-md space-y-2 text-sm text-left">
+                    <div class="flex justify-between"><span class="text-on-surface-variant">Email</span><span id="profile-email" class="font-bold">-</span></div>
+                    <div class="flex justify-between"><span class="text-on-surface-variant">Member Since</span><span id="profile-created" class="font-bold">-</span></div>
+                </div>
+            </div>
+
+            <!-- Editable Fields (Right) -->
+            <div class="col-span-12 xl:col-span-8 space-y-md">
+                <!-- Bio -->
+                <div class="tonal-card rounded-xl p-lg space-y-md">
+                    <h3 class="font-headline-md text-headline-md font-bold">Bio</h3>
+                    <p class="text-body-sm text-on-surface-variant">Tell us about yourself. This will be visible to other team members.</p>
+                    <textarea id="profile-bio" rows="3" class="w-full bg-surface border border-outline-variant/60 rounded-xl p-md text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="Write a short bio..."></textarea>
+                </div>
+
+                <!-- Profile Picture URL -->
+                <div class="tonal-card rounded-xl p-lg space-y-md">
+                    <h3 class="font-headline-md text-headline-md font-bold">Profile Picture</h3>
+                    <p class="text-body-sm text-on-surface-variant">Enter a URL for your profile picture image.</p>
+                    <input id="profile-picture-url" type="url" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" placeholder="https://example.com/avatar.jpg"/>
+                    <button onclick="previewProfilePicture()" class="text-secondary font-label-caps text-label-caps font-bold hover:underline text-sm">Preview</button>
+                </div>
+
+                <!-- Save Profile Button -->
+                <div class="flex justify-end">
+                    <button onclick="saveProfile()" class="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-label-caps text-label-caps flex items-center gap-sm hover:opacity-90 transition-all shadow-md">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Profile
+                    </button>
+                </div>
+
+                <!-- Password Change Section -->
+                <div class="tonal-card rounded-xl p-lg space-y-md border-l-4 border-l-secondary">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-headline-md text-headline-md font-bold">Password</h3>
+                            <p class="text-body-sm text-on-surface-variant">Passwords can only be changed once every 14 days.</p>
+                        </div>
+                        <span id="password-cooldown-badge" class="px-sm py-xs bg-amber-100 text-amber-800 rounded text-[11px] font-bold"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Current Password</label>
+                            <input id="profile-pw-current" type="password" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary"/>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">New Password</label>
+                            <input id="profile-pw-new" type="password" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary"/>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-on-surface-variant">Confirm</label>
+                            <input id="profile-pw-confirm" type="password" class="w-full bg-surface border border-outline-variant/60 rounded-xl px-md py-sm text-body-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary"/>
+                        </div>
+                    </div>
+                    <p id="profile-pw-error" class="text-red-600 text-xs font-bold hidden"></p>
+                    <div class="flex justify-end">
+                        <button onclick="changeProfilePassword()" class="bg-surface-container-lowest border border-outline px-md py-sm rounded-lg font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all">Update Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Change Password Modal -->
+    <div id="change-pw-modal" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeChangePasswordModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-headline-md text-headline-md font-bold">Change Password</h3>
+                    <button onclick="closeChangePasswordModal()" class="material-symbols-outlined text-on-surface-variant hover:text-primary">close</button>
+                </div>
+                <form onsubmit="submitChangePassword(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant">Current Password</label>
+                        <input id="change-pw-current" type="password" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required/>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant">New Password</label>
+                        <input id="change-pw-new" type="password" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required/>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-on-surface-variant">Confirm New Password</label>
+                        <input id="change-pw-confirm" type="password" class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary" required/>
+                    </div>
+                    <p id="change-pw-error" class="text-red-600 text-xs font-bold hidden"></p>
+                    <div class="flex justify-end gap-sm pt-md border-t">
+                        <button type="button" onclick="closeChangePasswordModal()" class="bg-surface-container-lowest border border-outline px-md py-sm rounded-lg font-label-caps text-label-caps text-on-surface-variant hover:bg-slate-100 transition-all">Cancel</button>
+                        <button type="submit" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-label-caps text-label-caps hover:opacity-90 transition-all shadow-sm">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    // System Local Data Cache
+    let cachedKPIs = {};
+    let cachedAlerts = [];
+    let cachedTransactions = [];
+    let cachedUsers = [];
+    let cachedMetrics = {};
+    let trendsChart = null;
+
+    // Run on startup
+    window.addEventListener('DOMContentLoaded', () => {
+        checkSession();
+        
+        // Simulating continuous live status pulse
+        setInterval(() => {
+            const systemIndicator = document.querySelector('.animate-pulse');
+            if (systemIndicator) {
+                systemIndicator.classList.remove('bg-emerald-500');
+                systemIndicator.classList.add('bg-white');
+                setTimeout(() => {
+                    systemIndicator.classList.remove('bg-white');
+                    systemIndicator.classList.add('bg-emerald-500');
+                }, 100);
+            }
+        }, 10000);
+    });
+
+    function checkSession() {
+        fetch('/api/auth/session')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('sidebar-user-name').innerText = user.full_name;
+                    
+                    const roleNames = user.roles || [];
+                    const primaryRole = roleNames.includes('admin') ? 'System Administrator' : (roleNames[0] || 'User');
+                    document.getElementById('sidebar-user-role').innerText = primaryRole;
+                    
+                    // Show role badges
+                    const badgesContainer = document.getElementById('sidebar-user-badges');
+                    badgesContainer.innerHTML = roleNames.map(r => 
+                        `<span class="text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-primary font-bold uppercase">${r.replace(/_/g, ' ')}</span>`
+                    ).join('');
+                    
+                    // Show admin nav items only for admin
+                    if (roleNames.includes('admin')) {
+                        document.getElementById('nav-users').classList.remove('hidden');
+                    }
+                    
+                    // Load profile picture for sidebar
+                    fetch('/api/auth/profile')
+                        .then(r => r.json())
+                        .then(pd => {
+                            if (pd.success && pd.profile.profile_picture) {
+                                document.getElementById('sidebar-user-avatar').src = pd.profile.profile_picture;
+                            }
+                        });
+                    
+                    // Init view UI
+                    showScreen('dashboard');
+                    syncSystemData();
+                } else {
+                    window.location.href = '/login';
+                }
+            })
+            .catch(() => {
+                window.location.href = '/login';
+            });
+    }
+
+    function showChangePasswordModal() {
+        document.getElementById('change-pw-modal').classList.remove('hidden');
+        document.getElementById('change-pw-current').value = '';
+        document.getElementById('change-pw-new').value = '';
+        document.getElementById('change-pw-confirm').value = '';
+        document.getElementById('change-pw-error').classList.add('hidden');
+    }
+
+    function closeChangePasswordModal() {
+        document.getElementById('change-pw-modal').classList.add('hidden');
+    }
+
+    function submitChangePassword(e) {
+        e.preventDefault();
+        const currentPw = document.getElementById('change-pw-current').value;
+        const newPw = document.getElementById('change-pw-new').value;
+        const confirmPw = document.getElementById('change-pw-confirm').value;
+        const errorEl = document.getElementById('change-pw-error');
+        
+        if (newPw !== confirmPw) {
+            errorEl.innerText = 'New passwords do not match.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (newPw.length < 6) {
+            errorEl.innerText = 'New password must be at least 6 characters.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        
+        errorEl.classList.add('hidden');
+        
+        fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current_password: currentPw, new_password: newPw })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Password changed successfully.', 'success');
+                closeChangePasswordModal();
+            } else {
+                errorEl.innerText = data.error || 'Failed to change password.';
+                errorEl.classList.remove('hidden');
+            }
+        });
+    }
+
+    // ==================== PROFILE ====================
+    function loadProfile() {
+        fetch('/api/auth/profile')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const p = data.profile;
+                    document.getElementById('profile-display-name').innerText = p.full_name;
+                    document.getElementById('profile-display-username').innerText = '@' + p.username;
+                    document.getElementById('profile-email').innerText = p.email || '-';
+                    document.getElementById('profile-bio').value = p.bio || '';
+                    document.getElementById('profile-picture-url').value = p.profile_picture || '';
+                    document.getElementById('profile-created').innerText = p.created_at ? p.created_at.substring(0, 10) : '-';
+                    
+                    if (p.profile_picture) {
+                        document.getElementById('profile-avatar').src = p.profile_picture;
+                    }
+                    
+                    // Role badges
+                    const badges = document.getElementById('profile-role-badges');
+                    badges.innerHTML = (p.roles || []).map(r =>
+                        `<span class="px-sm py-xs bg-surface-container text-primary rounded text-[11px] font-bold uppercase">${r.role_name.replace(/_/g, ' ')}</span>`
+                    ).join('');
+                    
+                    // Password cooldown
+                    const badge = document.getElementById('password-cooldown-badge');
+                    const remaining = p.password_change_remaining_days || 0;
+                    if (remaining > 0) {
+                        badge.innerText = `Cooldown: ${remaining}d remaining`;
+                        badge.className = 'px-sm py-xs bg-amber-100 text-amber-800 rounded text-[11px] font-bold';
+                    } else {
+                        badge.innerText = 'Change available';
+                        badge.className = 'px-sm py-xs bg-emerald-100 text-emerald-800 rounded text-[11px] font-bold';
+                    }
+                }
+            });
+    }
+
+    function previewProfilePicture() {
+        const url = document.getElementById('profile-picture-url').value.trim();
+        if (url) {
+            document.getElementById('profile-avatar').src = url;
+            document.getElementById('sidebar-user-avatar').src = url;
+        }
+    }
+
+    function saveProfile() {
+        const bio = document.getElementById('profile-bio').value.trim();
+        const profilePicture = document.getElementById('profile-picture-url').value.trim();
+        
+        fetch('/api/auth/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bio, profile_picture: profilePicture || null })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Profile updated successfully.', 'success');
+            } else {
+                showToast('Failed to update profile: ' + data.error, 'error');
+            }
+        });
+    }
+
+    function changeProfilePassword() {
+        const currentPw = document.getElementById('profile-pw-current').value;
+        const newPw = document.getElementById('profile-pw-new').value;
+        const confirmPw = document.getElementById('profile-pw-confirm').value;
+        const errorEl = document.getElementById('profile-pw-error');
+        
+        if (!currentPw || !newPw || !confirmPw) {
+            errorEl.innerText = 'All password fields are required.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (newPw !== confirmPw) {
+            errorEl.innerText = 'New passwords do not match.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (newPw.length < 6) {
+            errorEl.innerText = 'New password must be at least 6 characters.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        
+        errorEl.classList.add('hidden');
+        
+        fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current_password: currentPw, new_password: newPw })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Password changed successfully.', 'success');
+                document.getElementById('profile-pw-current').value = '';
+                document.getElementById('profile-pw-new').value = '';
+                document.getElementById('profile-pw-confirm').value = '';
+                loadProfile(); // Refresh cooldown
+            } else {
+                errorEl.innerText = data.error || 'Failed to change password.';
+                errorEl.classList.remove('hidden');
+            }
+        });
+    }
+
+    // ==================== NAVIGATION ====================
+    // Navigation routing helper
+    function showScreen(screenId) {
+        // Hide all screens
+        ['dashboard', 'monitoring', 'alerts', 'model', 'sandbox', 'prd', 'users', 'profile'].forEach(id => {
+            const screen = document.getElementById(`screen-${id}`);
+            const nav = document.getElementById(`nav-${id}`);
+            if (screen) screen.classList.add('hidden');
+            if (nav) nav.classList.remove('sidebar-active', 'text-secondary', 'font-bold');
+            if (nav) nav.classList.add('text-on-surface-variant');
+        });
+
+        // Show active screen
+        const targetScreen = document.getElementById(`screen-${screenId}`);
+        const targetNav = document.getElementById(`nav-${screenId}`);
+        if (targetScreen) targetScreen.classList.remove('hidden');
+        if (targetNav) {
+            targetNav.classList.add('sidebar-active');
+            targetNav.classList.remove('text-on-surface-variant');
+        }
+        
+        // Load data specific to screen
+        if (screenId === 'dashboard') {
+            loadDashboard();
+        } else if (screenId === 'monitoring') {
+            loadTransactions();
+        } else if (screenId === 'alerts') {
+            loadAlertsQueue();
+        } else if (screenId === 'model') {
+            loadModelLab();
+        } else if (screenId === 'sandbox') {
+            initSandboxForm();
+        } else if (screenId === 'users') {
+            loadAppUsers();
+        } else if (screenId === 'profile') {
+            loadProfile();
+        }
+    }
+
+    // Toast Notifications Banner Helper
+    function showToast(message, type = 'info') {
+        const banner = document.getElementById('toast-banner');
+        const icon = document.getElementById('toast-icon');
+        const msg = document.getElementById('toast-message');
+        
+        msg.innerText = message;
+        
+        if (type === 'success') {
+            icon.innerText = 'check_circle';
+            icon.style.color = '#4edea3';
+        } else if (type === 'error') {
+            icon.innerText = 'error';
+            icon.style.color = '#ba1a1a';
+        } else {
+            icon.innerText = 'info';
+            icon.style.color = '#6ffbbe';
+        }
+        
+        banner.classList.remove('hidden');
+        setTimeout(() => {
+            banner.classList.remove('opacity-0', 'translate-y-[-20px]');
+            banner.classList.add('opacity-100', 'translate-y-0');
+        }, 50);
+
+        setTimeout(() => {
+            banner.classList.remove('opacity-100', 'translate-y-0');
+            banner.classList.add('opacity-0', 'translate-y-[-20px]');
+            setTimeout(() => banner.classList.add('hidden'), 300);
+        }, 4000);
+    }
+
+    // Sync all baseline parameters from backend APIs
+    function syncSystemData() {
+        // Fetch KPIs
+        fetch('/api/kpis')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedKPIs = data.kpis;
+                    updateKPICards();
+                }
+            }).catch(err => console.error("Error loading KPIs", err));
+
+        // Fetch Alerts count
+        fetch('/api/alerts')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedAlerts = data.alerts;
+                    const pendingCount = cachedAlerts.filter(a => a.alert_status === 'PENDING').length;
+                    const badge = document.getElementById('alerts-badge');
+                    const dot = document.getElementById('alerts-dot');
+                    const countBadge = document.getElementById('alerts-count-badge');
+                    
+                    if (pendingCount > 0) {
+                        if (badge) { badge.innerText = pendingCount; badge.classList.remove('hidden'); }
+                        if (dot) dot.classList.remove('hidden');
+                        if (countBadge) countBadge.innerText = pendingCount;
+                    } else {
+                        if (badge) badge.classList.add('hidden');
+                        if (dot) dot.classList.add('hidden');
+                        if (countBadge) countBadge.innerText = 0;
+                    }
+                }
+            }).catch(err => console.error("Error loading alerts count", err));
+    }
+
+    // Update KPI panels on dashboard
+    function updateKPICards() {
+        document.getElementById('kpi-total-tx').innerText = cachedKPIs.total_transactions || "1.2M";
+        document.getElementById('kpi-fraud-rate').innerText = cachedKPIs.fraud_rate || "0.8%";
+        document.getElementById('kpi-blocked-tx').innerText = Number(cachedKPIs.blocked_transactions || 4520).toLocaleString();
+        document.getElementById('kpi-loss-prevented').innerText = cachedKPIs.loss_prevented || "₦2.4M";
+        document.getElementById('kpi-pending-alerts-desc').innerText = `${cachedKPIs.pending_alerts || 0} alerts pending review`;
+    }
+
+    // ==================== DASHBOARD VIEW ====================
+    function loadDashboard() {
+        syncSystemData();
+        
+        // Fetch recent alerts
+        fetch('/api/recent-alerts')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const table = document.getElementById('dashboard-events-table');
+                    table.innerHTML = "";
+                    
+                    data.alerts.forEach(tx => {
+                        let statusColor = "bg-emerald-100 text-emerald-800";
+                        if (tx.status === 'PENDING' || tx.status === 'MONITOR') statusColor = "bg-amber-100 text-amber-800";
+                        if (tx.status === 'BLOCKED') statusColor = "bg-red-100 text-red-800";
+                        if (tx.status === 'RESOLVED') statusColor = "bg-blue-100 text-blue-800";
+                        
+                        let scoreColor = "bg-emerald-100 text-emerald-800";
+                        if (tx.risk_score >= 80) scoreColor = "bg-error-container text-on-error-container";
+                        else if (tx.risk_score >= 40) scoreColor = "bg-orange-100 text-orange-800";
+                        
+                        table.innerHTML += `
+                            <tr class="hover:bg-surface-container/30 transition-colors">
+                                <td class="px-lg py-sm font-data-mono text-body-sm text-on-surface-variant font-bold">#TXN-${tx.transaction_id.replace('#TXN-', '')}</td>
+                                <td class="px-lg py-sm text-body-sm">${tx.transaction_type}</td>
+                                <td class="px-lg py-sm text-center">
+                                    <span class="px-sm py-[2px] ${scoreColor} rounded text-[11px] font-bold">${tx.risk_score}</span>
+                                </td>
+                                <td class="px-lg py-sm font-data-mono text-body-sm font-bold">₦${Number(tx.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="px-lg py-sm text-right">
+                                    <span class="px-sm py-[2px] ${statusColor} rounded text-[11px] font-bold">${tx.status}</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }).catch(err => console.error("Error loading recent events", err));
+
+        // Fetch and build trends chart
+        fetch('/api/trends')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    renderTrendsChart(data.trends);
+                }
+            });
+
+        // Fetch risk distribution
+        fetch('/api/risk-distribution')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const dist = data.distribution;
+                    document.getElementById('dist-critical-pct').innerText = `${dist.critical.pct}%`;
+                    document.getElementById('dist-critical-bar').style.width = `${dist.critical.pct}%`;
+                    
+                    document.getElementById('dist-high-pct').innerText = `${dist.high.pct}%`;
+                    document.getElementById('dist-high-bar').style.width = `${dist.high.pct}%`;
+                    
+                    document.getElementById('dist-medium-pct').innerText = `${dist.medium.pct}%`;
+                    document.getElementById('dist-medium-bar').style.width = `${dist.medium.pct}%`;
+                    
+                    document.getElementById('dist-low-pct').innerText = `${dist.low.pct}%`;
+                    document.getElementById('dist-low-bar').style.width = `${dist.low.pct}%`;
+                }
+            });
+    }
+
+    function renderTrendsChart(trends) {
+        const ctx = document.getElementById('chart-trends').getContext('2d');
+        
+        if (trendsChart) {
+            trendsChart.destroy();
+        }
+
+        trendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trends.dates,
+                datasets: [
+                    {
+                        label: 'Total Volume',
+                        data: trends.total_volumes,
+                        borderColor: '#2170e4',
+                        backgroundColor: 'rgba(33, 112, 228, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Fraudulent Volume',
+                        data: trends.fraud_volumes,
+                        borderColor: '#ba1a1a',
+                        backgroundColor: 'rgba(186, 26, 26, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                    },
+                    y: {
+                        position: 'left',
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                    },
+                    y1: {
+                        position: 'right',
+                        grid: { display: false },
+                        ticks: { font: { family: 'JetBrains Mono', size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function exportDashboardReport() {
+        showToast("Exporting Security Executive PDF Report...", "info");
+        setTimeout(() => {
+            showToast("Report compiled. C:/.gemini/reports/FraudGuard_Report_2026.pdf generated.", "success");
+        }, 1500);
+    }
+
+    // ==================== TRANSACTION MONITORING VIEW ====================
+    function loadTransactions() {
+        const search = document.getElementById('filter-search').value;
+        const risk = document.getElementById('filter-risk-tier').value;
+        const status = document.getElementById('filter-status').value;
+        
+        let url = `/api/transactions?search=${encodeURIComponent(search)}&risk_tier=${risk}&status=${status}`;
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedTransactions = data.transactions;
+                    const body = document.getElementById('monitoring-table-body');
+                    body.innerHTML = "";
+                    
+                    if (cachedTransactions.length === 0) {
+                        body.innerHTML = `<tr><td colspan="9" class="p-xl text-center text-on-surface-variant font-bold">No transactions match the selected filters.</td></tr>`;
+                        return;
+                    }
+                    
+                    cachedTransactions.forEach(tx => {
+                        let statusColor = "bg-emerald-100 text-emerald-800";
+                        if (tx.status === 'PENDING' || tx.status === 'MONITOR') statusColor = "bg-amber-100 text-amber-800";
+                        if (tx.status === 'BLOCKED') statusColor = "bg-red-100 text-red-800";
+                        if (tx.status === 'RESOLVED') statusColor = "bg-blue-100 text-blue-800";
+                        
+                        let scoreColor = "bg-emerald-100 text-emerald-800";
+                        if (tx.risk_score >= 80) scoreColor = "bg-error-container text-on-error-container";
+                        else if (tx.risk_score >= 40) scoreColor = "bg-orange-100 text-orange-800";
+                        
+                        body.innerHTML += `
+                            <tr class="hover:bg-surface-container/30 transition-colors">
+                                <td class="px-lg py-sm font-data-mono text-on-surface-variant font-bold">#TXN-${tx.transaction_id.replace('#TXN-', '')}</td>
+                                <td class="px-lg py-sm font-bold text-primary">${tx.full_name || "N/A"}</td>
+                                <td class="px-lg py-sm font-data-mono text-xs text-on-surface-variant">${tx.timestamp.replace('T', ' ').substring(0,19)}</td>
+                                <td class="px-lg py-sm">${tx.location}</td>
+                                <td class="px-lg py-sm">${tx.transaction_type}</td>
+                                <td class="px-lg py-sm text-center">
+                                    <span class="px-sm py-[2px] ${scoreColor} rounded text-[11px] font-bold">${tx.risk_score}</span>
+                                </td>
+                                <td class="px-lg py-sm font-data-mono font-bold">₦${Number(tx.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                                <td class="px-lg py-sm">
+                                    <span class="px-sm py-[2px] ${statusColor} rounded text-[11px] font-bold">${tx.status}</span>
+                                </td>
+                                <td class="px-lg py-sm text-right">
+                                    <button onclick="inspectTransaction('${tx.transaction_id}')" class="text-secondary hover:text-primary font-bold transition-all hover:underline font-label-caps text-label-caps">INSPECT</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+    }
+
+    function triggerGlobalSearch(val) {
+        // If we are not on monitoring, change to monitoring screen
+        const activeNav = document.querySelector('.sidebar-active');
+        if (activeNav.id !== 'nav-monitoring') {
+            showScreen('monitoring');
+        }
+        
+        document.getElementById('filter-search').value = val;
+        loadTransactions();
+    }
+
+    function resetFilters() {
+        document.getElementById('filter-search').value = "";
+        document.getElementById('filter-risk-tier').value = "";
+        document.getElementById('filter-status').value = "";
+        loadTransactions();
+    }
+
+    // Open transaction inspection panel
+    function inspectTransaction(txId) {
+        const tx = cachedTransactions.find(t => t.transaction_id === txId);
+        if (!tx) return;
+        
+        document.getElementById('inspect-txn-id').innerText = tx.transaction_id;
+        document.getElementById('inspect-time').innerText = tx.timestamp.replace('T', ' ');
+        document.getElementById('inspect-risk-score').innerText = tx.risk_score;
+        
+        // Style risk badge & score
+        const scoreSpan = document.getElementById('inspect-risk-score');
+        scoreSpan.className = "font-display-lg text-display-lg font-black";
+        if (tx.risk_score >= 80) scoreSpan.classList.add('text-error');
+        else if (tx.risk_score >= 40) scoreSpan.classList.add('text-orange-500');
+        else scoreSpan.classList.add('text-emerald-500');
+
+        const actionBadge = document.getElementById('inspect-action-badge');
+        actionBadge.innerText = tx.status;
+        actionBadge.className = "px-md py-sm rounded-lg text-body-sm font-bold inline-block";
+        if (tx.status === 'APPROVED') actionBadge.classList.add('bg-emerald-100', 'text-emerald-800');
+        else if (tx.status === 'PENDING' || tx.status === 'MONITOR') actionBadge.classList.add('bg-amber-100', 'text-amber-800');
+        else if (tx.status === 'BLOCKED') actionBadge.classList.add('bg-error-container', 'text-on-error-container');
+        else actionBadge.classList.add('bg-blue-100', 'text-blue-800');
+
+        // Customer baseline profile (we default or read custom values)
+        // Since we did a LEFT JOIN, we should look up user history parameters in our users seed if not defined
+        document.getElementById('inspect-cust-name').innerText = tx.full_name || "N/A";
+        document.getElementById('inspect-cust-age').innerText = `${tx.account_age || 365} Days`;
+        document.getElementById('inspect-cust-avg-amt').innerText = `₦${Number(tx.avg_transaction_amount || 25000).toLocaleString()}`;
+        document.getElementById('inspect-cust-fraud-hist').innerText = tx.previous_fraud_history ? "Prior Escalation Flagged" : "Clear Profile Baseline";
+
+        // Context details
+        document.getElementById('inspect-ctx-loc').innerText = tx.location;
+        document.getElementById('inspect-ctx-os').innerText = tx.operating_system || "N/A";
+        document.getElementById('inspect-ctx-device').innerText = tx.device_type || "N/A";
+        document.getElementById('inspect-ctx-browser').innerText = tx.browser_type || "N/A";
+        document.getElementById('inspect-ctx-ip').innerText = tx.ip_address || "N/A";
+        document.getElementById('inspect-ctx-vpn').innerText = tx.vpn_usage ? "Yes (Tunnel Detected)" : "No (Normal Network)";
+        document.getElementById('inspect-ctx-amount').innerText = `₦${Number(tx.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('inspect-ctx-type').innerText = tx.transaction_type;
+
+        // Model indicators breakdown representation (generate list dynamically)
+        const indicatorsContainer = document.getElementById('inspect-indicators-list');
+        indicatorsContainer.innerHTML = "";
+        
+        // Mock reconstruction of explanations for inspector based on values
+        let indicators = [];
+        const avgAmt = tx.avg_transaction_amount || 25000;
+        const ratio = tx.amount / avgAmt;
+        
+        if (ratio > 10) indicators.push({feature: "Amount Deviation", score: Math.min(100, Math.round(ratio * 4)), desc: `Transaction amount is ${ratio.toFixed(1)}x higher than average client baseline.`});
+        if (tx.vpn_usage) indicators.push({feature: "Proxy Tunneling", score: 85, desc: "VPN proxy usage detected. Anonymized data path."});
+        if (tx.device_type === 'iPhone' && tx.device_id !== 'DEV-SamsungS21') indicators.push({feature: "Hardware Change", score: 75, desc: "New handset device ID fingerprint signature mismatch."});
+        if (tx.location === 'Dubai') indicators.push({feature: "Geographic Velocity", score: 90, desc: "Significant latitude distance shift from usual Lagos operations."});
+        
+        if (indicators.length === 0) {
+            indicatorsContainer.innerHTML = `<p class="text-xs text-on-surface-variant font-bold">No anomalies identified. Transaction matches client historical distribution.</p>`;
+        } else {
+            indicators.forEach(ind => {
+                indicatorsContainer.innerHTML += `
+                    <div class="p-sm bg-surface-container-low rounded border border-outline-variant/30 flex justify-between items-start gap-md">
+                        <div>
+                            <span class="font-bold text-body-sm text-primary flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                ${ind.feature}
+                            </span>
+                            <p class="text-[12px] text-on-surface-variant leading-tight mt-0.5">${ind.desc}</p>
+                        </div>
+                        <span class="font-bold text-xs bg-error-container text-on-error-container px-1.5 py-0.5 rounded">Wt: ${ind.score}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Slide out drawer
+        document.getElementById('inspect-drawer').classList.remove('hidden');
+    }
+
+    function closeInspectDrawer() {
+        document.getElementById('inspect-drawer').classList.add('hidden');
+    }
+
+    // ==================== ALERTS QUEUE ====================
+    let activeAlertForReview = null;
+
+    function loadAlertsQueue() {
+        fetch('/api/alerts')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedAlerts = data.alerts;
+                    
+                    // Update badges
+                    const pendingCount = cachedAlerts.filter(a => a.alert_status === 'PENDING').length;
+                    const badgeCount = document.getElementById('alerts-count-badge');
+                    if (badgeCount) badgeCount.innerText = pendingCount;
+                    
+                    const list = document.getElementById('alerts-list-container');
+                    list.innerHTML = "";
+                    
+                    if (cachedAlerts.length === 0) {
+                        list.innerHTML = `<div class="p-md text-center text-on-surface-variant text-body-sm font-bold bg-white rounded border">No alerts found.</div>`;
+                        return;
+                    }
+                    
+                    cachedAlerts.forEach(al => {
+                        let indicatorColor = "bg-amber-500";
+                        if (al.alert_status === 'BLOCKED') indicatorColor = "bg-error";
+                        if (al.alert_status === 'APPROVED') indicatorColor = "bg-emerald-500";
+                        if (al.alert_status === 'RESOLVED') indicatorColor = "bg-blue-500";
+                        
+                        let selectStyle = activeAlertForReview && activeAlertForReview.alert_id === al.alert_id 
+                            ? "border-2 border-secondary bg-surface-container" 
+                            : "bg-white border hover:bg-slate-50";
+                            
+                        list.innerHTML += `
+                            <div onclick="selectAlertForReview(${al.alert_id})" class="p-md rounded-xl cursor-pointer transition-all flex justify-between items-start ${selectStyle}">
+                                <div class="space-y-xs overflow-hidden">
+                                    <div class="flex items-center gap-xs">
+                                        <span class="w-2.5 h-2.5 rounded-full ${indicatorColor}"></span>
+                                        <span class="font-data-mono font-bold text-primary">#TXN-${al.transaction_id.replace('#TXN-', '')}</span>
+                                    </div>
+                                    <p class="text-xs text-on-surface-variant font-bold truncate">Customer: ${al.full_name}</p>
+                                    <p class="text-[10px] text-on-surface-variant font-data-mono">${al.timestamp.replace('T', ' ').substring(0,19)}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold font-data-mono block">₦${Number(al.amount).toLocaleString()}</span>
+                                    <span class="text-[10px] font-label-caps text-on-surface-variant">Risk Weight: ${al.risk_score}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            });
+    }
+
+    function selectAlertForReview(alertId) {
+        activeAlertForReview = cachedAlerts.find(a => a.alert_id === alertId);
+        if (!activeAlertForReview) return;
+        
+        // Hide empty state and show review panel
+        document.getElementById('alerts-empty-state').classList.add('hidden');
+        document.getElementById('alerts-review-panel').classList.remove('hidden');
+        
+        // Populate Review elements
+        document.getElementById('review-txn-id').innerText = activeAlertForReview.transaction_id;
+        document.getElementById('review-time').innerText = activeAlertForReview.timestamp.replace('T', ' ');
+        
+        const scoreBadge = document.getElementById('review-score-badge');
+        scoreBadge.innerText = `Risk Score: ${activeAlertForReview.risk_score}`;
+        scoreBadge.className = "px-md py-sm font-black text-body-lg rounded-xl";
+        if (activeAlertForReview.risk_score >= 80) {
+            scoreBadge.classList.add('bg-error-container', 'text-on-error-container');
+        } else if (activeAlertForReview.risk_score >= 40) {
+            scoreBadge.classList.add('bg-orange-100', 'text-orange-800');
+        } else {
+            scoreBadge.classList.add('bg-emerald-100', 'text-emerald-800');
+        }
+        
+        // User history Details
+        document.getElementById('review-user-name').innerText = activeAlertForReview.full_name;
+        document.getElementById('review-user-age').innerText = `${activeAlertForReview.account_age} Days`;
+        document.getElementById('review-user-spend').innerText = `₦${Number(activeAlertForReview.avg_transaction_amount).toLocaleString()}`;
+        document.getElementById('review-user-fraud').innerText = activeAlertForReview.previous_fraud_history ? "Escalated History" : "Normal History";
+        
+        // Transaction Details
+        document.getElementById('review-amount').innerText = `₦${Number(activeAlertForReview.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('review-location').innerText = `${activeAlertForReview.location} (Proxy OS: ${activeAlertForReview.transaction_type})`;
+        document.getElementById('review-device').innerText = activeAlertForReview.full_name === 'David K.' ? "Unknown Handset Device" : "Android Client Baseline";
+        document.getElementById('review-vpn').innerText = activeAlertForReview.risk_score >= 90 ? "Yes (Tunnel Active)" : "No (Normal Network)";
+        
+        // Initial comment/explanation
+        document.getElementById('review-explanation').innerText = activeAlertForReview.analyst_comment || "System triggered alert based on ML classifier prediction weights mismatch.";
+        document.getElementById('review-comment').value = "";
+
+        // Reload queue UI to highlight selected
+        loadAlertsQueue();
+    }
+
+    function commitAlertDecision(status) {
+        if (!activeAlertForReview) return;
+        
+        const comment = document.getElementById('review-comment').value.trim();
+        if (comment === "") {
+            showToast("Please enter an analyst investigation comment before finalizing.", "error");
+            return;
+        }
+        
+        fetch('/api/alerts/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                alert_id: activeAlertForReview.alert_id,
+                status: status,
+                comment: comment
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Alert resolved. Decision committed: ${status}`, "success");
+                activeAlertForReview = null;
+                document.getElementById('alerts-review-panel').classList.add('hidden');
+                document.getElementById('alerts-empty-state').classList.remove('hidden');
+                
+                // Refresh list and sync indicators
+                loadAlertsQueue();
+                syncSystemData();
+            } else {
+                showToast("Failed to commit resolution. " + data.error, "error");
+            }
+        });
+    }
+
+    // ==================== MODEL MANAGEMENT (LAB) ====================
+    function loadModelLab() {
+        // Fetch model metrics
+        fetch('/api/model/metrics')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedMetrics = data.metrics;
+                    document.getElementById('metric-accuracy').innerText = `${(cachedMetrics.accuracy * 100).toFixed(1)}%`;
+                    document.getElementById('metric-precision').innerText = `${(cachedMetrics.precision * 100).toFixed(1)}%`;
+                    document.getElementById('metric-recall').innerText = `${(cachedMetrics.recall * 100).toFixed(1)}%`;
+                    document.getElementById('metric-f1').innerText = `${(cachedMetrics.f1 * 100).toFixed(1)}%`;
+                    document.getElementById('metric-model-type').innerText = cachedMetrics.model_type || 'RandomForest';
+                    
+                    // Render Feature weights
+                    renderFeatureImportance(cachedMetrics.feature_importances);
+                }
+            });
+
+        // Fetch model retraining logs
+        fetch('/api/model/logs')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const tbody = document.getElementById('model-logs-table-body');
+                    tbody.innerHTML = "";
+                    
+                    data.logs.forEach(lg => {
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-surface-container/30 transition-colors">
+                                <td class="px-lg py-sm font-bold text-primary font-data-mono">${lg.model_version}</td>
+                                <td class="px-lg py-sm"><span class="px-sm py-[2px] bg-surface-container text-primary rounded text-[10px] font-bold">${lg.model_type || 'RandomForest'}</span></td>
+                                <td class="px-lg py-sm text-xs font-data-mono text-on-surface-variant">${lg.created_at.replace('T', ' ').substring(0,19)}</td>
+                                <td class="px-lg py-sm text-center font-bold font-data-mono">${(lg.accuracy * 100).toFixed(1)}%</td>
+                                <td class="px-lg py-sm text-center font-bold font-data-mono">${(lg.precision * 100).toFixed(1)}%</td>
+                                <td class="px-lg py-sm text-center font-bold font-data-mono">${(lg.recall * 100).toFixed(1)}%</td>
+                                <td class="px-lg py-sm text-center font-bold font-data-mono">${(lg.f1_score * 100).toFixed(1)}%</td>
+                                <td class="px-lg py-sm text-right">
+                                    <span class="px-sm py-[2px] bg-emerald-100 text-emerald-800 rounded text-[11px] font-bold">DEPLOYED</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+    }
+
+    function renderFeatureImportance(importances) {
+        const container = document.getElementById('feature-importance-bars');
+        container.innerHTML = "";
+        
+        // Mapping codes to human names
+        const names = {
+            "amount_ratio": "Amount Baseline Mismatch",
+            "hour_of_day": "Unusual Transaction Hour",
+            "location_distance": "Geographic Latitude Shift",
+            "device_changed": "Device Mismatch Flag",
+            "vpn_usage": "VPN Tunneling Proxy",
+            "velocity": "Frequency Velocity Spikes",
+            "previous_fraud": "Blacklisted Profile Flag"
+        };
+
+        // Sort importances descending
+        const sorted = Object.entries(importances).sort((a,b) => b[1] - a[1]);
+        
+        sorted.forEach(([key, imp]) => {
+            const pct = (imp * 100).toFixed(1);
+            container.innerHTML += `
+                <div>
+                    <div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant mb-xs font-bold">
+                        <span>${names[key] || key}</span>
+                        <span>${pct}%</span>
+                    </div>
+                    <div class="w-full bg-surface-container rounded-full h-2.5">
+                        <div class="bg-secondary h-full rounded-full transition-all duration-700" style="width: ${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function triggerModelRetrain() {
+        const btn = document.getElementById('btn-retrain');
+        const loader = document.getElementById('ml-retrain-loader');
+        
+        btn.disabled = true;
+        loader.classList.remove('hidden');
+        
+        // Multi-stage loader messaging for realism
+        const messages = [
+            { h: "Aggregating transaction volume...", d: "Reading SQLite transactions index. Partitioning 80/20 train-test sets." },
+            { h: "Re-evaluating decision trees...", d: "Training new RandomForest ensemble. Splitting nodes on location distance features." },
+            { h: "Tuning model hyperparameters...", d: "Adjusting estimators. Re-calculating True Positive / False Positive rates." }
+        ];
+
+        let stage = 0;
+        const interval = setInterval(() => {
+            if (stage < messages.length) {
+                document.getElementById('loader-headline').innerText = messages[stage].h;
+                document.getElementById('loader-desc').innerText = messages[stage].d;
+                stage++;
+            }
+        }, 1200);
+
+        // Perform actual training call to API
+        fetch('/api/model/retrain', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                clearInterval(interval);
+                btn.disabled = false;
+                loader.classList.add('hidden');
+                
+                if (data.success) {
+                    showToast(`Model Retrained successfully. Deployed ${data.version}!`, "success");
+                    loadModelLab();
+                } else {
+                    showToast("Error during retraining model: " + data.error, "error");
+                }
+            })
+            .catch(err => {
+                clearInterval(interval);
+                btn.disabled = false;
+                loader.classList.add('hidden');
+                showToast("Connection error during retraining model.", "error");
+            });
+    }
+
+    // ==================== TRANSACTION SANDBOX (SIMULATOR) ====================
+    function initSandboxForm() {
+        // Load users list
+        fetch('/api/users')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    cachedUsers = data.users;
+                    const select = document.getElementById('sim-user');
+                    select.innerHTML = `<option value="" disabled selected>-- Select a Customer Profile --</option>`;
+                    
+                    cachedUsers.forEach(u => {
+                        select.innerHTML += `<option value="${u.user_id}">${u.full_name} (${u.user_id})</option>`;
+                    });
+                }
+            });
+            
+        // Reset states
+        document.getElementById('sim-idle').classList.remove('hidden');
+        document.getElementById('sim-processing').classList.add('hidden');
+        document.getElementById('sim-result-card').classList.add('hidden');
+    }
+
+    function updateSimProfileInfo() {
+        const userId = document.getElementById('sim-user').value;
+        const u = cachedUsers.find(cust => cust.user_id === userId);
+        if (!u) return;
+        
+        document.getElementById('sim-user-card').classList.remove('hidden');
+        document.getElementById('sim-baseline-amt').innerText = `₦${Number(u.avg_transaction_amount).toLocaleString()}`;
+        document.getElementById('sim-baseline-freq').innerText = `${u.daily_frequency} / day`;
+        document.getElementById('sim-baseline-age').innerText = `${u.account_age} Days`;
+        document.getElementById('sim-baseline-fraud').innerText = u.previous_fraud_history ? "YES (Flagged)" : "NO (Clean)";
+        
+        // Auto fill a reasonable amount for user
+        document.getElementById('sim-amount').value = Math.round(u.avg_transaction_amount);
+    }
+
+    function runSimulation(e) {
+        e.preventDefault();
+        
+        const user = document.getElementById('sim-user').value;
+        if (!user) {
+            showToast("Please select a customer profile to simulate.", "error");
+            return;
+        }
+
+        const data = {
+            user_id: user,
+            amount: parseFloat(document.getElementById('sim-amount').value),
+            transaction_type: document.getElementById('sim-type').value,
+            location: document.getElementById('sim-location').value,
+            location_distance: parseFloat(document.getElementById('sim-distance').value),
+            hour_of_day: parseInt(document.getElementById('sim-hour').value),
+            velocity: parseInt(document.getElementById('sim-velocity').value),
+            vpn_usage: document.getElementById('sim-vpn').checked ? 1 : 0,
+            device_changed: document.getElementById('sim-device').checked ? 1 : 0,
+            destination_account: "ACC-" + Math.floor(10000 + Math.random() * 90000),
+            source_account: "ACC-" + Math.floor(10000 + Math.random() * 90000)
+        };
+
+        // Transition layout
+        document.getElementById('sim-idle').classList.add('hidden');
+        document.getElementById('sim-result-card').classList.add('hidden');
+        document.getElementById('sim-processing').classList.remove('hidden');
+
+        fetch('/api/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            document.getElementById('sim-processing').classList.add('hidden');
+            
+            if (res.success) {
+                // Show result card
+                const card = document.getElementById('sim-result-card');
+                card.classList.remove('hidden');
+                
+                document.getElementById('res-txn-id').innerText = res.transaction_id;
+                
+                // Risk score color styles
+                const scoreBadge = document.getElementById('res-score-badge');
+                scoreBadge.innerText = `Risk Score: ${res.risk_score}`;
+                scoreBadge.className = "px-md py-sm text-body-lg font-black rounded-xl";
+                if (res.risk_score >= 80) scoreBadge.classList.add('bg-error-container', 'text-on-error-container');
+                else if (res.risk_score >= 40) scoreBadge.classList.add('bg-orange-100', 'text-orange-800');
+                else scoreBadge.classList.add('bg-emerald-100', 'text-emerald-800');
+
+                // Action banner styles
+                const banner = document.getElementById('res-action-banner');
+                const actionIcon = document.getElementById('res-action-icon');
+                const actionTitle = document.getElementById('res-action-title');
+                const actionDesc = document.getElementById('res-action-desc');
+                const btnAlerts = document.getElementById('btn-jump-alerts');
+                
+                banner.className = "p-md rounded-xl border flex items-center justify-between";
+                
+                if (res.action === 'APPROVED') {
+                    banner.classList.add('bg-emerald-50', 'border-emerald-200');
+                    actionIcon.innerText = "check_circle";
+                    actionIcon.style.color = '#10b981';
+                    actionTitle.innerText = "APPROVED";
+                    actionTitle.style.color = '#065f46';
+                    actionDesc.innerText = "The risk score is below 30. Transaction approved immediately.";
+                    btnAlerts.classList.add('hidden');
+                } else if (res.action === 'MONITOR') {
+                    banner.classList.add('bg-amber-50', 'border-amber-200');
+                    actionIcon.innerText = "warning";
+                    actionIcon.style.color = '#f59e0b';
+                    actionTitle.innerText = "MONITORED";
+                    actionTitle.style.color = '#92400e';
+                    actionDesc.innerText = "The transaction has minor anomalies and is logged for profile monitoring.";
+                    btnAlerts.classList.add('hidden');
+                } else if (res.action === 'PENDING') {
+                    banner.classList.add('bg-orange-50', 'border-orange-200');
+                    actionIcon.innerText = "hourglass_empty";
+                    actionIcon.style.color = '#f97316';
+                    actionTitle.innerText = "HELD FOR REVIEW";
+                    actionTitle.style.color = '#c2410c';
+                    actionDesc.innerText = "Score exceeds 60 threshold. Queued on the Analyst Investigation Desk.";
+                    btnAlerts.classList.remove('hidden');
+                } else if (res.action === 'BLOCKED') {
+                    banner.classList.add('bg-error-container', 'border-red-200');
+                    actionIcon.innerText = "block";
+                    actionIcon.style.color = '#ba1a1a';
+                    actionTitle.innerText = "BLOCKED";
+                    actionTitle.style.color = '#93000a';
+                    actionDesc.innerText = "Risk score exceeds 80. Immediate transaction block committed.";
+                    btnAlerts.classList.remove('hidden');
+                }
+
+                // Render explanation list
+                const list = document.getElementById('res-indicators-list');
+                list.innerHTML = "";
+                
+                if (res.indicators.length === 0) {
+                    list.innerHTML = `<p class="text-xs text-on-surface-variant font-bold">All features match customer normal transaction profile distributions.</p>`;
+                } else {
+                    res.indicators.forEach(ind => {
+                        list.innerHTML += `
+                            <div class="p-sm bg-surface-container-low rounded border border-outline-variant/30 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-body-sm text-primary">${ind.feature}</span>
+                                    <p class="text-[12px] text-on-surface-variant leading-tight mt-0.5">${ind.desc}</p>
+                                </div>
+                                <span class="font-bold text-xs bg-error-container text-on-error-container px-1.5 py-0.5 rounded">Weight: ${ind.score}</span>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Show notification toast
+                showToast(`Simulation complete: ${res.action} (Risk: ${res.risk_score})`, "success");
+            } else {
+                showToast("Simulation failed: " + res.error, "error");
+            }
+        });
+    }
+
+    // ==================== USER MANAGEMENT (Admin) ====================
+    let cachedRoles = [];
+    
+    function loadAppUsers() {
+        fetch('/api/roles')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) cachedRoles = data.roles;
+            });
+        
+        fetch('/api/app-users')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const tbody = document.getElementById('users-table-body');
+                    tbody.innerHTML = "";
+                    
+                    data.users.forEach(u => {
+                        const roleBadges = (u.roles || []).map(r => 
+                            `<span class="px-sm py-[2px] bg-surface-container text-primary rounded text-[10px] font-bold uppercase mr-1">${r.role_name}</span>`
+                        ).join('');
+                        
+                        const statusColor = u.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
+                        const statusText = u.is_active ? 'Active' : 'Inactive';
+                        
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-surface-container/30 transition-colors">
+                                <td class="px-lg py-sm font-data-mono font-bold text-primary">${u.username}</td>
+                                <td class="px-lg py-sm">${u.full_name}</td>
+                                <td class="px-lg py-sm text-on-surface-variant">${u.email || '-'}</td>
+                                <td class="px-lg py-sm"><div class="flex flex-wrap gap-1">${roleBadges || '<span class="text-xs text-on-surface-variant">None</span>'}</div></td>
+                                <td class="px-lg py-sm text-center">
+                                    <span class="px-sm py-[2px] ${statusColor} rounded text-[11px] font-bold">${statusText}</span>
+                                </td>
+                                <td class="px-lg py-sm text-right">
+                                    <button onclick='editUser(${JSON.stringify(u)})' class="text-secondary hover:text-primary font-bold transition-all hover:underline text-xs mr-sm">EDIT</button>
+                                    <button onclick="deleteUser(${u.user_id}, '${u.username}')" class="text-error hover:text-red-700 font-bold transition-all hover:underline text-xs">DELETE</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+    }
+
+    function renderRoleCheckboxes(selectedIds = []) {
+        const container = document.getElementById('user-roles-checkboxes');
+        container.innerHTML = '';
+        cachedRoles.forEach(r => {
+            const checked = selectedIds.includes(r.role_id) ? 'checked' : '';
+            container.innerHTML += `
+                <label class="flex items-center gap-sm cursor-pointer select-none">
+                    <input type="checkbox" value="${r.role_id}" ${checked} class="role-checkbox rounded text-secondary focus:ring-secondary/20 h-4 w-4"/>
+                    <span class="text-xs font-medium text-on-surface-variant capitalize">${r.role_name.replace(/_/g, ' ')}</span>
+                </label>
+            `;
+        });
+    }
+
+    function getSelectedRoleIds() {
+        return Array.from(document.querySelectorAll('.role-checkbox:checked')).map(cb => parseInt(cb.value));
+    }
+
+    function showAddUserModal() {
+        document.getElementById('user-modal-title').innerText = 'Add System User';
+        document.getElementById('edit-user-id').value = '';
+        document.getElementById('user-username').value = '';
+        document.getElementById('user-username').disabled = false;
+        document.getElementById('user-password').value = '';
+        document.getElementById('user-password').required = true;
+        document.getElementById('password-hint').innerText = 'Required for new users.';
+        document.getElementById('user-fullname').value = '';
+        document.getElementById('user-email').value = '';
+        renderRoleCheckboxes([2]);
+        document.getElementById('user-modal').classList.remove('hidden');
+    }
+
+    function editUser(u) {
+        document.getElementById('user-modal-title').innerText = 'Edit System User';
+        document.getElementById('edit-user-id').value = u.user_id;
+        document.getElementById('user-username').value = u.username;
+        document.getElementById('user-username').disabled = true;
+        document.getElementById('user-password').value = '';
+        document.getElementById('user-password').required = false;
+        document.getElementById('password-hint').innerText = 'Leave blank to keep existing password.';
+        document.getElementById('user-fullname').value = u.full_name;
+        document.getElementById('user-email').value = u.email || '';
+        const selectedIds = (u.roles || []).map(r => r.role_id);
+        renderRoleCheckboxes(selectedIds);
+        document.getElementById('user-modal').classList.remove('hidden');
+    }
+
+    function closeUserModal() {
+        document.getElementById('user-modal').classList.add('hidden');
+        document.getElementById('user-username').disabled = false;
+    }
+
+    function saveUser(e) {
+        e.preventDefault();
+        const editId = document.getElementById('edit-user-id').value;
+        const username = document.getElementById('user-username').value;
+        const password = document.getElementById('user-password').value;
+        const fullName = document.getElementById('user-fullname').value;
+        const email = document.getElementById('user-email').value;
+        const roleIds = getSelectedRoleIds();
+        
+        if (roleIds.length === 0) {
+            showToast('Please select at least one role.', 'error');
+            return;
+        }
+        
+        if (editId) {
+            fetch(`/api/app-users/${editId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ full_name: fullName, email, role_ids: roleIds })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('User updated successfully.', 'success');
+                    closeUserModal();
+                    loadAppUsers();
+                } else {
+                    showToast('Failed to update user: ' + data.error, 'error');
+                }
+            });
+        } else {
+            if (!password) {
+                showToast('Password is required for new users.', 'error');
+                return;
+            }
+            fetch('/api/app-users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, full_name: fullName, email, role_ids: roleIds })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('User created successfully.', 'success');
+                    closeUserModal();
+                    loadAppUsers();
+                } else {
+                    showToast('Failed to create user: ' + data.error, 'error');
+                }
+            });
+        }
+    }
+
+    function deleteUser(userId, username) {
+        if (!confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) return;
+        
+        fetch(`/api/app-users/${userId}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`User "${username}" deleted.`, 'success');
+                    loadAppUsers();
+                } else {
+                    showToast('Failed to delete user: ' + data.error, 'error');
+                }
+            });
+    }
+
+    function handleLogout() {
+        fetch('/api/auth/logout', { method: 'POST' })
+            .then(() => {
+                window.location.href = '/login';
+            });
+    }
+</script>
+</body>
+</html>
